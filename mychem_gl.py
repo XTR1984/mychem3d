@@ -56,7 +56,7 @@ class GLWidget(QOpenGLWidget):
         #glEnable(GL_MULTISAMPLE); 
         self.iconic = False
         self.nearatomsmax = 5000
-        self.LOCALSIZEX = 64
+        self.LOCALSIZEX = 32     # compute units?
         self.nearflag = False
         self.drawnodes =  True
         self.update_uniforms = True
