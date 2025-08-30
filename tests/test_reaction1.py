@@ -38,7 +38,7 @@ if __name__ == '__main__':
      #space.recording = True
     #space.INTERACT_KOEFF = 5.0
     #space.REPULSION_KOEFF2=50
-    space.REPULSION_KOEFF1=0
+    space.REPULSION_SIGMA=0
     space.BOND_KOEFF = 100
 #    space.MASS_KOEFF = 5
     space.appendmixer(1)

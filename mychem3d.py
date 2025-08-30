@@ -1029,8 +1029,9 @@ class OptionsFrame(QDialog):
         # Создание слайдеров и меток
         self.create_slider(layout, "Update delta", 1, 150, self.space.update_delta, self.set_delta)
         self.create_slider(layout, "Interact koeff", 0, 10000, int(self.space.INTERACT_KOEFF), self.set_interk)
-        self.create_slider(layout, "Repulsion koeff1", -15, 50, int(self.space.REPULSION_KOEFF1), self.set_repulsek1)
-        self.create_slider(layout, "Repulsion koeff2", 1, 15, int(self.space.REPULSION_KOEFF2), self.set_repulsek2)
+        self.create_slider(layout, "Repulsion sigma", -15, 50, int(self.space.REPULSION_SIGMA), self.set_repulsek1)
+        self.create_slider(layout, "Repulsion power", 1, 15, int(self.space.REPULSION_POW), self.set_repulsek2)
+        self.create_slider(layout, "Repulsion eps", 1, 300, int(self.space.REPULSION_EPS*100), self.set_repulsek3)
         self.create_slider(layout, "Attracion koeff", 0, 200, int(self.space.ATTRACTION_KOEFF), self.set_attraction)
         self.create_slider(layout, "Bond koeff", 1, 1000, self.space.BOND_KOEFF, self.set_bondk)
         self.create_slider(layout, "Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
@@ -1098,12 +1099,17 @@ class OptionsFrame(QDialog):
         self.glframe.update_uniforms = True
 
     def set_repulsek1(self, value):
-        self.space.REPULSION_KOEFF1 = float(value)
+        self.space.REPULSION_SIGMA = float(value)
         self.glframe.update_uniforms = True
 
     def set_repulsek2(self, value):
-        self.space.REPULSION_KOEFF2 = float(value)
+        self.space.REPULSION_POW = float(value)
         self.glframe.update_uniforms = True
+
+    def set_repulsek3(self, value):
+        self.space.REPULSION_EPS = float(value)*0.01
+        self.glframe.update_uniforms = True
+
 
     def set_attraction(self, value):
         self.space.ATTRACTION_KOEFF = float(value)

@@ -28,8 +28,9 @@ uniform float FIELD_KOEFF;
 uniform float ROTA_KOEFF;
 uniform float CONUS_KOEFF = 0.866;
 float REPULSION1 = -6;
-uniform float REPULSION_KOEFF1;
-uniform float REPULSION_KOEFF2;
+uniform float REPULSION_SIGMA;
+uniform float REPULSION_POW;
+uniform float REPULSION_EPS;
 uniform float MASS_KOEFF;
 uniform float NEARDIST;
 uniform float NODEDIST;
@@ -286,17 +287,9 @@ void main()
             F += delta/r*f2; 
 
             if (r<NODEDIST) {
-                //if (r>sumradius+REPULSION_KOEFF1){
-                    float sgm = sumradius+REPULSION_KOEFF1;
-                    f3 = 0.5* pow(sgm/r,REPULSION_KOEFF2);
-                    F += delta/r*f3; 
-                //}
-                /*if (r<(sumradius+REPULSION1) && r>1.0 ){
-                   f3 =  REPULSION_KOEFF1/r ;
-                   F += delta/r*f3;                   
-                   //atom_i.highlight = 50;
-
-                }*/
+                float sgm = sumradius+REPULSION_SIGMA;
+                f3 = REPULSION_EPS* pow(sgm/r,REPULSION_POW);
+                F += delta/r*f3; 
 
             //nodes
             for (int ni = 0; ni<atom_i.ncount; ni++ ) {

@@ -23,9 +23,10 @@ class Space:
         self.FIELD_KOEFF= 1.0
         self.ROTA_KOEFF = 10.0
         self.REPULSION1 = -6
-        self.REPULSION_KOEFF1 = 0
+        self.REPULSION_SIGMA = 0
         self.REPULSION2 = 6
-        self.REPULSION_KOEFF2= 6
+        self.REPULSION_POW= 6
+        self.REPULSION_EPS= 0.10
         self.ATTRACTION_KOEFF = 1
         self.MASS_KOEFF = 1.0
         self.MAXVELOCITY = 1
