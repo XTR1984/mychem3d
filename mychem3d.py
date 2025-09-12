@@ -1047,6 +1047,12 @@ class OptionsFrame(QDialog):
         self.show_nodes_checkbox.stateChanged.connect(self.set_shownodes)
         layout.addWidget(self.show_nodes_checkbox)
 
+        self.double_radius_checkbox = QCheckBox("Double radius")
+        self.double_radius_checkbox.setChecked(self.glframe.nicefactor==2.0)
+        self.double_radius_checkbox.stateChanged.connect(self.set_doubleradius)
+        layout.addWidget(self.double_radius_checkbox)
+
+
         self.side_heat_checkbox = QCheckBox("Side heat")
         self.side_heat_checkbox.setChecked(self.space.sideheat)
         self.side_heat_checkbox.stateChanged.connect(self.set_sideheat)
@@ -1145,6 +1151,13 @@ class OptionsFrame(QDialog):
             self.glframe.drawnodes = True
         else:
             self.glframe.drawnodes = False
+
+    def set_doubleradius(self,checked):
+        if checked:
+            self.glframe.nicefactor = 2.0
+        else:
+            self.glframe.nicefactor = 1.0
+
 
     def set_size(self, value):
         sx = self.sizex.value()

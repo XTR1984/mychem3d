@@ -59,6 +59,7 @@ class GLWidget(QOpenGLWidget):
         self.LOCALSIZEX = 32     # compute units?
         self.nearflag = False
         self.drawnodes =  True
+        self.nicefactor = 1.0
         self.update_uniforms = True
         self.CUBESIZE = 1280
 
@@ -319,7 +320,7 @@ class GLWidget(QOpenGLWidget):
                                                ]
                                               )
             self.shader.init_uniforms([ "model", "objectColor", "view", "projection", "mode", "nodeindex",
-                                         "lightPos", "transparency" 
+                                         "lightPos", "transparency", "nicefactor" 
                                       ])
 
     def create_objects(self):
@@ -359,6 +360,7 @@ class GLWidget(QOpenGLWidget):
         self.shader.setMatrix4("view", self.view)
         self.shader.setMatrix4("projection", self.projection)
         self.shader.set3f("lightPos", self.lightPos.x, self.lightPos.y, self.lightPos.z)
+        self.shader.setFloat("nicefactor", self.nicefactor);
 
         # draw container            
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE )

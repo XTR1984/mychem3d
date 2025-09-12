@@ -26,6 +26,7 @@ uniform int nodeindex;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform float nicefactor;
 
 out AtomData {
     Atom out_a;
@@ -59,7 +60,7 @@ void main()
 //                           currentAtom.pos.x,  currentAtom.pos.y  ,  currentAtom.pos.z ,    1  
 //                           );
 
-        vec4 vposition = vec4(position * currentAtom.r * factor +  currentAtom.pos.xyz*factor, 1.0f) ;
+        vec4 vposition = vec4(position * currentAtom.r * factor * nicefactor  +  currentAtom.pos.xyz*factor, 1.0f) ;
         //atom_position = currentAtom.pos*factor;
         gl_Position = projection * view * vposition;
 //        if (currentAtom.pos.x != 515.0){
