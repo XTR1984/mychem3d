@@ -453,14 +453,15 @@ void main()
 
 //heating
    if (sideheat==1){
-        if (pos_i.y<50.0) v_i +=  v_i * HEAT*0.0001;      
+        if (pos_i.y<100.0) v_i+=HEAT* vec3(0,0.0001,0);
+        //v_i +=  v_i * HEAT*0.0001;      
    }
    else v_i +=  v_i * HEAT*0.0001;      
    
  
 
  //gravity
-   if (gravity==1) v_i.y -= 0.001; //gravity
+   if (gravity==1) v_i.y -= 0.0001; //gravity
 
    //if (pos_i.y < 30) v_i.y += 0.1;
      
