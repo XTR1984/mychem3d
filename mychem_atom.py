@@ -46,29 +46,14 @@ class AtomC(Structure):
     _fields_ = [
         ("pos", c_float*4),
         ("v", c_float*4),
-        ("type", c_float),
-        ("r", c_float),
-        ("m", c_float),
-        ("ncount", c_float),
         ("rot", c_float*4),
         ("rotv", c_float*4),
-        ("highlight", c_float),
-        ("q",  c_float),
-        ("fixed", c_float),
-        ("_pad1", c_float),
-        ("color", c_float*4),
         ]
     def to_ctypes(self, a):
         self.pos[0:3]= a.pos.to_list()
         self.pos[3]= 0
         self.v[0:3]= a.v.to_list()
         self.v[3]= 0
-        self.type = a.type
-        self.r = a.r
-        self.m = a.m
-        self.q = a.q
-        self.ncount = len(a.nodes)
-        self.fixed = float(a.fixed)
         self.rot[0]= a.rot.x
         self.rot[1]= a.rot.y
         self.rot[2]= a.rot.z
@@ -77,13 +62,10 @@ class AtomC(Structure):
         self.rotv[1]= a.rotv.y
         self.rotv[2]= a.rotv.z
         self.rotv[3]= a.rotv.w
-        self.highlight = 0.0
-        self.color[0:4]= a.color
 
     def from_ctypes(self,a):
         a.pos = glm.vec3(self.pos[0:3])
         a.v = glm.vec3(self.v[0:3])
-        a.q = self.q
         a.rot.x = self.rot[0]
         a.rot.y = self.rot[1]
         a.rot.z = self.rot[2]
@@ -92,6 +74,34 @@ class AtomC(Structure):
         a.rotv.y = self.rotv[1]
         a.rotv.z = self.rotv[2]
         a.rotv.w = self.rotv[3]
+
+
+class AtomCS(Structure):
+    _fields_ = [
+        ("type", c_float),
+        ("r", c_float),
+        ("m", c_float),
+        ("ncount", c_float),
+        ("highlight", c_float),
+        ("q",  c_float),
+        ("fixed", c_float),
+        ("_pad1", c_float),
+        ("color", c_float*4),
+        ]
+    def to_ctypes(self, a):
+        self.type = a.type
+        self.r = a.r
+        self.m = a.m
+        self.q = a.q
+        self.ncount = len(a.nodes)
+        self.fixed = float(a.fixed)
+        self.highlight = 0.0
+        self.color[0:4]= a.color
+
+    def from_ctypes(self,a):
+        a.q = self.q
+
+
 
 
 class Atom():

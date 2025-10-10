@@ -13,7 +13,7 @@ from math import sin,cos,sqrt,pi
 import time
 from mychem_functions import make_sphere_vert,make_cube2,print_bytes_with_highlights
 from mychem_data import cube_vertices
-from mychem_atom import Node,AtomC,NodeC
+from mychem_atom import Node,AtomC,NodeC,AtomCS
 from array import array
 from mesh import Mesh
 import threading
@@ -133,6 +133,7 @@ class GLWidget(QOpenGLWidget):
         self.compute_shader.use()
         print(f'init buffers: maxatoms = {self.space.maxatoms}')
         asize = ctypes.sizeof(AtomC) + 5 * ctypes.sizeof(NodeC)
+        asizeS = ctypes.sizeof(AtomCS)
         self.atoms_buffer = Buffer()
         self.atoms_buffer.bind_to(0)
         self.atoms_buffer.zero(asize*self.space.maxatoms)
@@ -140,21 +141,27 @@ class GLWidget(QOpenGLWidget):
         self.atoms_buffer2 = Buffer()
         self.atoms_buffer2.bind_to(1)
         self.atoms_buffer2.zero(asize*self.space.maxatoms)
-    
+
+
+        self.atoms_buffer3 = Buffer()
+        self.atoms_buffer3.bind_to(2)
+        self.atoms_buffer3.zero(asizeS*self.space.maxatoms)
+
+
         #nearbuffer
         self.near_buffer = Buffer()
-        self.near_buffer.bind_to(2)
+        self.near_buffer.bind_to(3)
         self.near_buffer.zero(self.space.maxatoms*4*(self.nearatomsmax+1))
         self.nearflag = True    
 
         #far field buffer
         self.far_buffer = Buffer()
-        self.far_buffer.bind_to(3)
+        self.far_buffer.bind_to(4)
         self.far_buffer.zero(self.space.maxatoms*4)
 
         # real pos buffer
         self.rpos_buffer = Buffer()
-        self.rpos_buffer.bind_to(4)
+        self.rpos_buffer.bind_to(5)
         self.rpos_buffer.zero(self.space.maxatoms*4*4*6)
 
         self.qshift_buffer = Buffer()
@@ -172,24 +179,32 @@ class GLWidget(QOpenGLWidget):
             if self.space.N==0: return
             atoms = self.space.atoms
             offset=0
+            offsetS=0
             if self.space.N> self.space.maxatoms:
                 print("too much atoms!")
                 return
         else:
             atoms = self.space.atoms[first:first+size]
             asize = ctypes.sizeof(AtomC)+ctypes.sizeof(NodeC)*5
+            asizeS = ctypes.sizeof(AtomCS)
             offset = first*asize
+            offsetS = first*asizeS
             print(f"  Atoms2ssbo N+={len(atoms)} offset = {offset} ")
 
         #self.makeCurrent()
         
         ac = AtomC()
+        acS = AtomCS()
         nc = NodeC()
         a_data = bytearray()
+        a_dataS = bytearray()
         for a in atoms:
                 ac.to_ctypes(a)
+                acS.to_ctypes(a)
                 abytearray =  bytearray(ac)               
+                abytearrayS = bytearray(acS)               
                 a_data += abytearray
+                a_dataS += abytearrayS
                 for n in a.nodes:
                     nc.to_ctypes(n, self.space)
                     nbytearray = bytearray(nc)
@@ -198,29 +213,34 @@ class GLWidget(QOpenGLWidget):
                     nbytearray = bytearray(ctypes.sizeof(NodeC))
                     a_data += nbytearray
         datasize = len(a_data)
+        datasizeS = len(a_dataS)
         a_data = np.array(a_data,dtype=np.byte)
+        a_dataS = np.array(a_dataS,dtype=np.byte)
 #        print_bytes_with_highlights(a_data,[(ctypes.sizeof(AtomC)+9*4,4)])
-        print(f"  buffer size={datasize}")
+        print(f"  buffer size={datasize+ datasizeS}")
 
-        #self.atoms_buffer.bind_to(0)
+        self.atoms_buffer.bind_to(0)
         self.atoms_buffer.subwrite(a_data, offset)
 
-        #self.atoms_buffer2.bind_to(1)
+        self.atoms_buffer2.bind_to(1)
         self.atoms_buffer2.subwrite(a_data, offset)
+
+        self.atoms_buffer3.bind_to(2)
+        self.atoms_buffer3.subwrite(a_dataS, offsetS)
     
         #nearbuffer
-        self.near_buffer.bind_to(2)
+        self.near_buffer.bind_to(3)
         offset = first*4*(self.nearatomsmax)
         self.near_buffer.subzero(len(atoms)*4*(self.nearatomsmax), offset)
         self.nearflag = True    
 
         #far field buffer
-        self.far_buffer.bind_to(3)
+        self.far_buffer.bind_to(4)
         offset = first*4
         self.far_buffer.subzero(len(atoms)*4,offset)
 
         # real pos buffer
-        self.rpos_buffer.bind_to(4)
+        self.rpos_buffer.bind_to(5)
         offset = first*4*4*6        
         self.rpos_buffer.subzero(len(atoms)*4*4*6,offset)
 
@@ -285,21 +305,28 @@ class GLWidget(QOpenGLWidget):
         self.space.N = len(self.space.atoms)
         print(f"  ssbo2atoms N={self.space.N}")
         asize = ctypes.sizeof(AtomC)+ctypes.sizeof(NodeC)*5
+        asizeS = ctypes.sizeof(AtomCS)
         a_data8 = self.atoms_buffer.subread(self.space.N*asize)
+        a_dataS8 = self.atoms_buffer3.subread(self.space.N*asizeS)
         #print_bytes_with_highlights(a_data8,[(ctypes.sizeof(AtomC)+9*4,4)])
         print("  getbuffersubdata size=", self.space.N*asize)
         #print("sizeof AtomC", ctypes.sizeof(AtomC))
         #print("sizeof NodeC", ctypes.sizeof(NodeC))
         #self.doneCurrent()
         offset = 0
+        offsetS = 0
         self.space.Ek = 0
         for i in range(0,self.space.N):
             a = self.space.atoms[i]
             abytearray = a_data8[offset:offset+ctypes.sizeof(AtomC)]
+            abytearrayS = a_dataS8[offsetS:offsetS+ctypes.sizeof(AtomCS)]
             ac = AtomC.from_buffer(abytearray)
+            acS = AtomCS.from_buffer(abytearrayS)
             ac.from_ctypes(a)
+            acS.from_ctypes(a)
             self.space.Ek += a.m*glm.dot(a.v,a.v)/2.0
             offset+= ctypes.sizeof(AtomC)
+            offsetS+= ctypes.sizeof(AtomCS)
             for n in a.nodes:
                 nbytearray = a_data8[offset:offset+ctypes.sizeof(NodeC)]
                 nc = NodeC.from_buffer(nbytearray)
@@ -675,7 +702,7 @@ class GLWidget(QOpenGLWidget):
         counter_buffer.zero(4)
 
         self.atoms_buffer.bind_to(0)
-        self.rpos_buffer.bind_to(4)
+        self.rpos_buffer.bind_to(5)
        
         self.select_shader.run(self.space.N,1,1)        
 

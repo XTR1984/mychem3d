@@ -7,21 +7,24 @@ struct Node {
     float spin;
 };
 
-struct Atom
+struct AtomS
 {
-    vec4 pos;
-    vec4 v;
     float type;
     float r;
     float m;
     float ncount;
-    vec4 rot;
-    vec4 rotv;
     float highlight;
-    float q;
+    float q;    
     float fxd;
     float _pad;
     vec4 color;
+};
+
+struct AtomD {
+    vec4 pos;
+    vec4 v;
+    vec4 rot;
+    vec4 rotv;
     Node nodes[5];
 };
 

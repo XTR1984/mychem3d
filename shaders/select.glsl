@@ -15,8 +15,14 @@ layout(binding = 0) uniform atomic_uint nselected;
 // Input buffer
 layout(std430, binding=0) buffer atoms_in
 {
-    Atom atoms[];
+    AtomD atoms[];
 } In;
+
+
+layout(std430, binding=2) buffer atoms_static
+{
+    AtomS atoms[];
+} Static;
 
 layout(std430, binding=4) buffer rpos_buffer
 {
@@ -67,7 +73,8 @@ void main()
     //   return;
     //}
 
-    Atom atom_i = In.atoms[i];
+    AtomD atom_i = In.atoms[i];
+    AtomS atom_iS = Static.atoms[i];
     vec3 pos_i= atom_i.pos.xyz;
     int bonded = 0;
     for (int jj=0;jj<SelIn.indexes.length();jj++){
@@ -78,15 +85,16 @@ void main()
     for (int jj=0;jj<SelIn.indexes.length();jj++){
         int j = SelIn.indexes[jj];
         //uint n = atomicCounterIncrement(nselected);
-        Atom atom_j = In.atoms[j];
+        AtomD atom_j = In.atoms[j];
+        AtomS atom_jS = Static.atoms[j];
         vec3 pos_j = atom_j.pos.xyz;
         vec3 delta = pos_i - pos_j;
         float r =     distance(pos_i, pos_j);
         if (r>=50) continue;
-        for (int ni = 0; ni<atom_i.ncount; ni++ ) {
+        for (int ni = 0; ni<atom_iS.ncount; ni++ ) {
             vec3 ni_realpos = rpos[i][ni].xyz;
             float ni_type = atom_i.nodes[ni].type;
-                for (int nj = 0; nj<atom_j.ncount; nj++){
+                for (int nj = 0; nj<atom_jS.ncount; nj++){
                     float nj_type = atom_j.nodes[nj].type;
                     vec3 nj_realpos = rpos[j][nj].xyz;
                     float rn = distance(pos_i + ni_realpos, pos_j + nj_realpos);

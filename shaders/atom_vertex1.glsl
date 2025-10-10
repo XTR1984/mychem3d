@@ -5,10 +5,16 @@
 
 layout(std430, binding=0) buffer atoms_in
 {
-    Atom atoms[];
+    AtomD atoms[];
 } In;
 
-layout(std430, binding=4) buffer rpos_buffer
+layout(std430, binding=2) buffer atoms_static
+{
+    AtomS atoms[];
+} Static;
+
+
+layout(std430, binding=5) buffer rpos_buffer
 {
     vec4 rpos[][6];
 };
@@ -28,9 +34,9 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform float nicefactor;
 
-out AtomData {
-    Atom out_a;
-};
+//out AtomData {
+//    AtomS out_a;
+//};
 
 //out vec4 atom_position;
 out vec3 Normal;
@@ -53,34 +59,36 @@ void main()
     if (mode==1){ //ssbo atoms
         bool bug = false; 
         float factor = 0.001;
-        Atom currentAtom = In.atoms[gl_InstanceID];
+        AtomS currentAtomS = Static.atoms[gl_InstanceID];
+        AtomD currentAtom = In.atoms[gl_InstanceID];
 //        mat4 model = mat4( factor,  0,  0, 0,
 //                           0,  factor, 0,  0 ,
 //                           0,   0, factor,  0,
 //                           currentAtom.pos.x,  currentAtom.pos.y  ,  currentAtom.pos.z ,    1  
 //                           );
 
-        vec4 vposition = vec4(position * currentAtom.r * factor * nicefactor  +  currentAtom.pos.xyz*factor, 1.0f) ;
+        vec4 vposition = vec4(position * currentAtomS.r * factor * nicefactor  +  currentAtom.pos.xyz*factor, 1.0f) ;
         //atom_position = currentAtom.pos*factor;
         gl_Position = projection * view * vposition;
 //        if (currentAtom.pos.x != 515.0){
 //            bug = true;
 //        }
-        ObjectColor = currentAtom.color;
+        ObjectColor = currentAtomS.color;
         if (bug){
             ObjectColor = vec4(1,0,0,1);
         }
-        if (currentAtom.highlight>0) ObjectColor = vec4(0,1,0,1);
+        if (currentAtomS.highlight>0) ObjectColor = vec4(0,1,0,1);
         FragPos = vposition.xyz;
         Normal = normal;
     }
     if (mode==2) { //nodes
         float factor = 0.001;
-        Atom currentAtom = In.atoms[gl_InstanceID];
-        float alpha = currentAtom.color.w;
+        AtomD currentAtom = In.atoms[gl_InstanceID];
+        AtomS currentAtomS = Static.atoms[gl_InstanceID];
+        float alpha = currentAtomS.color.w;
         //vec3 nodepos = rotate_vector(currentAtom.nodes[nodeindex].pos.xyz, currentAtom.rot);
         vec3 nodepos;
-        if (nodeindex<currentAtom.ncount)
+        if (nodeindex<currentAtomS.ncount)
             nodepos = rpos[gl_InstanceID][nodeindex].xyz;
         else nodepos = vec3(0);
 
