@@ -136,6 +136,9 @@ void main()
                 
        } 
        Static.atoms[i].q = q;
+        //highlight
+       if (Static.atoms[i].highlight >0) Static.atoms[i].highlight-=1;
+
        return;
     }
 
@@ -252,9 +255,6 @@ void main()
     M = vec3(0.0);
     vec4 totalrot = vec4(0.0, 0.0, 0.0, 1.0);
 
-    
-    //highlight
-    if (atom_iS.highlight >0) atom_iS.highlight-=1;
 
     //random redox 
     if (redox==1){
@@ -262,14 +262,14 @@ void main()
                 if (rand(v_i.xy)>=0.9994) {
                     atom_i.nodes[0].q = 1;
                     atom_i.nodes[0].spin = 0;
-                    atom_iS.highlight = 500;                    
+                    Static.atoms[i].highlight = 500;                    
                 }
             }
             if (pos_i.x>WIDTH-300){
                 if (rand(v_i.xy)>=0.9994) {
                     atom_i.nodes[0].q = -1;
                     atom_i.nodes[0].spin = 0;
-                    atom_iS.highlight = 500;
+                    Static.atoms[i].highlight = 500;
                 }
             }    
     }
@@ -433,7 +433,7 @@ void main()
         atom_i.nodes[ni].bonded = bondcheck[ni];
         if (old==1.0 && atom_i.nodes[ni].bonded==0.0) {  //unbond
             if (highlight_unbond==1) {
-                atom_iS.highlight = 50;                    
+                Static.atoms[i].highlight = 50;                    
             }                
             if (abs(qshift_buffer[i][ni])>0.4){
                 if(qshift_buffer[i][ni]>0){
