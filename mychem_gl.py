@@ -13,7 +13,7 @@ from math import sin,cos,sqrt,pi
 import time
 from mychem_functions import make_sphere_vert,make_cube2,print_bytes_with_highlights
 from mychem_data import cube_vertices
-from mychem_atom import Node,AtomC,NodeC,AtomCS
+from mychem_atom import Node,AtomC,AtomCS, NodeC,NodeCS
 from array import array
 from mesh import Mesh
 import threading
@@ -133,7 +133,7 @@ class GLWidget(QOpenGLWidget):
         self.compute_shader.use()
         print(f'init buffers: maxatoms = {self.space.maxatoms}')
         asize = ctypes.sizeof(AtomC) + 5 * ctypes.sizeof(NodeC)
-        asizeS = ctypes.sizeof(AtomCS)
+        asizeS = ctypes.sizeof(AtomCS) + 5* ctypes.sizeof(NodeCS) 
         self.atoms_buffer = Buffer()
         self.atoms_buffer.bind_to(0)
         self.atoms_buffer.zero(asize*self.space.maxatoms)
@@ -186,7 +186,7 @@ class GLWidget(QOpenGLWidget):
         else:
             atoms = self.space.atoms[first:first+size]
             asize = ctypes.sizeof(AtomC)+ctypes.sizeof(NodeC)*5
-            asizeS = ctypes.sizeof(AtomCS)
+            asizeS = ctypes.sizeof(AtomCS)+ctypes.sizeof(NodeCS)*5
             offset = first*asize
             offsetS = first*asizeS
             print(f"  Atoms2ssbo N+={len(atoms)} offset = {offset} ")
@@ -196,6 +196,7 @@ class GLWidget(QOpenGLWidget):
         ac = AtomC()
         acS = AtomCS()
         nc = NodeC()
+        ncS = NodeCS()
         a_data = bytearray()
         a_dataS = bytearray()
         for a in atoms:
@@ -207,11 +208,16 @@ class GLWidget(QOpenGLWidget):
                 a_dataS += abytearrayS
                 for n in a.nodes:
                     nc.to_ctypes(n, self.space)
+                    ncS.to_ctypes(n, self.space)
                     nbytearray = bytearray(nc)
+                    nbytearrayS = bytearray(ncS)
                     a_data += nbytearray
+                    a_dataS += nbytearrayS
                 for i in range(0,5-len(a.nodes)):
                     nbytearray = bytearray(ctypes.sizeof(NodeC))
+                    nbytearray = bytearray(ctypes.sizeof(NodeCS))
                     a_data += nbytearray
+                    a_dataS += nbytearrayS
         datasize = len(a_data)
         datasizeS = len(a_dataS)
         a_data = np.array(a_data,dtype=np.byte)
@@ -305,7 +311,7 @@ class GLWidget(QOpenGLWidget):
         self.space.N = len(self.space.atoms)
         print(f"  ssbo2atoms N={self.space.N}")
         asize = ctypes.sizeof(AtomC)+ctypes.sizeof(NodeC)*5
-        asizeS = ctypes.sizeof(AtomCS)
+        asizeS = ctypes.sizeof(AtomCS)+ctypes.sizeof(NodeCS)*5
         a_data8 = self.atoms_buffer.subread(self.space.N*asize)
         a_dataS8 = self.atoms_buffer3.subread(self.space.N*asizeS)
         #print_bytes_with_highlights(a_data8,[(ctypes.sizeof(AtomC)+9*4,4)])
@@ -329,11 +335,16 @@ class GLWidget(QOpenGLWidget):
             offsetS+= ctypes.sizeof(AtomCS)
             for n in a.nodes:
                 nbytearray = a_data8[offset:offset+ctypes.sizeof(NodeC)]
+                nbytearrayS = a_data8[offsetS:offsetS+ctypes.sizeof(NodeCS)]
                 nc = NodeC.from_buffer(nbytearray)
+                ncS = NodeCS.from_buffer(nbytearrayS)
                 nc.from_ctypes(n,self.space)
-                offset+= ctypes.sizeof(NodeC)
+                ncS.from_ctypes(n,self.space)
+                offset += ctypes.sizeof(NodeC)
+                offsetS+= ctypes.sizeof(NodeCS)
             for i in range(0,5-len(a.nodes)):
-                offset+= ctypes.sizeof(NodeC)
+                offset += ctypes.sizeof(NodeC)
+                offsetS+= ctypes.sizeof(NodeCS)
 
 
     def init_uniforms(self):

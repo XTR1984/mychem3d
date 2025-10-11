@@ -127,7 +127,7 @@ void main()
        //In.atoms[i].q=0;
        float q = 0; 
        for (int ni = 0; ni<Static.atoms[i].ncount; ni++ ) {
-                rpos[i][ni].xyz = rotate_vector(In.atoms[i].nodes[ni].pos.xyz, In.atoms[i].rot);
+                rpos[i][ni].xyz = rotate_vector(Static.atoms[i].nodes[ni].pos.xyz, In.atoms[i].rot);
                 q += qshift_buffer[i][ni]; 
                 if (In.atoms[i].nodes[ni].type == 2.0 ) { 
                     q +=  1;
@@ -349,17 +349,17 @@ void main()
                         }
                         else {
                             f4 = 500*exp(-1.2*rn); // pauli!
-                            atom_iS.highlight = 50;
+                            //atom_iS.highlight = 50;
                         }
                     }
 
                     else {
                     
-                        if (rn < BONDR*1.5  ){
+                        /*if (rn < BONDR*1.5  ){
                             float f= abs(edelta) * ni_spin * nj_spin * INTERACT_KOEFF/rn/rn;
                             f4+=f;
                             f5+=f;
-                        }
+                        }*/
 
                         if (ni_bonded == 0.0 && nj_bonded ==0.0 &&  ni_spin + nj_spin==0 ){
                             float f= ni_spin * nj_spin * INTERACT_KOEFF2/rn/rn;
@@ -377,14 +377,14 @@ void main()
                     }
                     
                     //hydrogen bond, node to atom
-                    /*if (ni_bonded==0.0 && atom_j.type==1.0 && nj_bonded==1.0){
+                    /*if (ni_bonded==0.0 && atom_jS.type==1.0 && nj_bonded==1.0){
                                 vec3 cdelta = ni_realpos + delta;
                                 float rc = distance(pos_i + ni_realpos, pos_j);
                                 float ld = length(delta);
                                 if (ld==0.0) continue;
-                                float conus_i  = dot(ni_realpos,-delta)/atom_i.r/ld;
+                                float conus_i  = dot(ni_realpos,-delta)/atom_iS.r/ld;
                                 if(  conus_i>CONUS_KOEFF ){   
-                                    float f = atom_j.q* ni_q * INTERACT_KOEFF/rc/rc;
+                                    float f = atom_jS.q* ni_q * INTERACT_KOEFF/rc/rc;
                                     FN+= cdelta/rc*f;
                                     
                                 }

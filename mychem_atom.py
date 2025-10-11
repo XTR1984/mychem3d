@@ -4,7 +4,6 @@ import glm
 
 class NodeC(Structure):
     _fields_ = [
-        ("pos", c_float*4),
         ("q", c_float),
         ("bonded", c_float),
         ("type", c_float),
@@ -12,8 +11,6 @@ class NodeC(Structure):
     ]
 
     def to_ctypes(self,n,space):
-        self.pos[0:3] = n.pos.to_list()
-        self.pos[3] = 0
         self.q = n.q 
         self.bonded = float(n.bonded)
         self.type = float(n.type)
@@ -21,12 +18,37 @@ class NodeC(Structure):
         self.spin = float(n.spin)
     
     def from_ctypes(self,n,space):
-        #n.pos = glm.vec3(self.pos[0:3])
         n.q = int(self.q)
         n.bonded = bool(self.bonded)
         #n.pair = space.get_node_by_index(self.pair) 
         n.spin = int(self.spin)
         n.type = int(self.type)
+
+class Node():
+    def __init__(self,parent):
+        self.f = 0
+        self.f2 = 0
+        self.bonded = False
+        self.pair = None
+        self.parent = parent
+        self.q = 0
+        self.spin = 0
+        self.pos = glm.vec3(0,0,0)
+        self.type = 0 
+
+
+class NodeCS(Structure):
+    _fields_ = [
+        ("pos", c_float*4),
+    ]
+
+    def to_ctypes(self,n,space):
+        self.pos[0:3] = n.pos.to_list()
+        self.pos[3] = 0
+    
+    def from_ctypes(self,n,space):
+        #n.pos = glm.vec3(self.pos[0:3])
+        pass
 
 class Node():
     def __init__(self,parent):
