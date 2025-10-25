@@ -19,12 +19,17 @@ layout(std430, binding=0) buffer atoms_in
 } In;
 
 
+layout(std430, binding=1) buffer atoms_out
+{
+    AtomD atoms[];
+} Out;
+
 layout(std430, binding=2) buffer atoms_static
 {
     AtomS atoms[];
 } Static;
 
-layout(std430, binding=4) buffer rpos_buffer
+layout(std430, binding=5) buffer rpos_buffer
 {
     vec4 rpos[][6];
 };
