@@ -16,7 +16,9 @@ from molex import load_sdf
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, \
                             QVBoxLayout, QWidget, QShortcut,QHBoxLayout,QStatusBar, \
                             QSlider,QFileDialog, QMessageBox,QLabel,QDialog,QCheckBox, \
-                            QMenu,QComboBox,QPushButton,QInputDialog,QLineEdit,QDoubleSpinBox
+                            QMenu,QComboBox,QPushButton,QInputDialog,QLineEdit,QDoubleSpinBox,\
+                            QScrollArea
+
 from PyQt5.QtCore import Qt
 
 class mychemApp(QApplication):
@@ -1022,48 +1024,61 @@ class OptionsFrame(QDialog):
         self.space = app.space
         self.glframe = app.glframe
         self.setWindowTitle("Fine tuning (options)")
-        self.setFixedSize(420, 700)
+        self.setFixedSize(420, 500)
 
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        options_widget = QWidget()
+        self.options_layout = QVBoxLayout(options_widget)
 
         # Создание слайдеров и меток
-        self.create_slider(layout, "Update delta", 1, 150, self.space.update_delta, self.set_delta)
-        self.create_slider(layout, "Interact koeff", 0, 10000, int(self.space.INTERACT_KOEFF), self.set_interk)
-        self.create_slider(layout, "Repulsion sigma", -15, 50, int(self.space.REPULSION_SIGMA), self.set_repulsek1)
-        self.create_slider(layout, "Repulsion power", 1, 15, int(self.space.REPULSION_POW), self.set_repulsek2)
-        self.create_slider(layout, "Repulsion eps", 1, 300, int(self.space.REPULSION_EPS*100), self.set_repulsek3)
-        self.create_slider(layout, "Attracion koeff", 0, 200, int(self.space.ATTRACTION_KOEFF), self.set_attraction)
-        self.create_slider(layout, "Bond koeff", 1, 1000, self.space.BOND_KOEFF, self.set_bondk)
-        self.create_slider(layout, "Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
-        self.create_slider(layout, "Mass koeff", 1, 50, self.space.MASS_KOEFF, self.set_massk)
-        self.create_slider(layout, "E-Field koeff", 1, 100, self.space.FIELD_KOEFF, self.set_fieldk)
-        self.sizex = self.create_slider(layout, "Container size X", 1, 50, int(self.space.WIDTH / 100), self.set_size)
-        self.sizey = self.create_slider(layout, "Container size Y", 1, 50, int(self.space.HEIGHT / 100), self.set_size)
-        self.sizez = self.create_slider(layout, "Container size Z", 1, 50, int(self.space.DEPTH / 100), self.set_size)
-        self.create_field(layout, "TDELTA", 0.0, 1.0, self.space.TDELTA, self.set_tdelta)
+        self.create_slider("Update delta", 1, 150, self.space.update_delta, self.set_delta)
+        self.create_slider("Interact koeff", 0, 10000, int(self.space.INTERACT_KOEFF), self.set_interk)
+        self.create_slider("Repulsion sigma", -15, 50, int(self.space.REPULSION_SIGMA), self.set_repulsek1)
+        self.create_slider("Repulsion power", 1, 15, int(self.space.REPULSION_POW), self.set_repulsek2)
+        self.create_slider("Repulsion eps", 1, 300, int(self.space.REPULSION_EPS*100), self.set_repulsek3)
+        self.create_slider("Attracion koeff", 0, 200, int(self.space.ATTRACTION_KOEFF), self.set_attraction)
+        self.create_slider("Bond koeff", 1, 1000, self.space.BOND_KOEFF, self.set_bondk)
+        self.create_slider("Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
+        self.create_slider("Mass koeff", 1, 50, self.space.MASS_KOEFF, self.set_massk)
+        self.create_slider("E-Field koeff", 1, 100, self.space.FIELD_KOEFF, self.set_fieldk)
+        self.sizex = self.create_slider("Container size X", 1, 50, int(self.space.WIDTH / 100), self.set_size)
+        self.sizey = self.create_slider("Container size Y", 1, 50, int(self.space.HEIGHT / 100), self.set_size)
+        self.sizez = self.create_slider("Container size Z", 1, 50, int(self.space.DEPTH / 100), self.set_size)
+        self.create_field("TDELTA", 0.0, 1.0, self.space.TDELTA, self.set_tdelta)
 
         self.show_nodes_checkbox = QCheckBox("Show nodes")
         self.show_nodes_checkbox.setChecked(self.glframe.drawnodes)
         self.show_nodes_checkbox.stateChanged.connect(self.set_shownodes)
-        layout.addWidget(self.show_nodes_checkbox)
+        self.options_layout.addWidget(self.show_nodes_checkbox)
 
         self.double_radius_checkbox = QCheckBox("Double radius")
         self.double_radius_checkbox.setChecked(self.glframe.nicefactor==2.0)
         self.double_radius_checkbox.stateChanged.connect(self.set_doubleradius)
-        layout.addWidget(self.double_radius_checkbox)
+        self.options_layout.addWidget(self.double_radius_checkbox)
 
 
         self.side_heat_checkbox = QCheckBox("Side heat")
         self.side_heat_checkbox.setChecked(self.space.sideheat)
         self.side_heat_checkbox.stateChanged.connect(self.set_sideheat)
-        layout.addWidget(self.side_heat_checkbox)
+        self.options_layout.addWidget(self.side_heat_checkbox)
 
-        self.setLayout(layout)
+        self.options_layout.addStretch(1)
+        
+        scroll_area.setWidget(options_widget)
+        
+        main_layout.addWidget(scroll_area)
+        self.setLayout(main_layout)
 
-    def create_field(self, layout, label_text, min_value, max_value, initial, callback):
+    def create_field(self, label_text, min_value, max_value, initial, callback):
         field_frame = QWidget()
         h_layout = QHBoxLayout(field_frame)
-        layout.addWidget(field_frame)
+        self.options_layout.addWidget(field_frame)
         label = QLabel(label_text)
         h_layout.addWidget(label)
         input_field = QDoubleSpinBox(self)
@@ -1073,10 +1088,11 @@ class OptionsFrame(QDialog):
         input_field.setValue(initial)
         input_field.valueChanged.connect(callback)
         h_layout.addWidget(input_field)
-    def create_slider(self, layout, label_text, min_value, max_value, initial_value, callback):
+
+    def create_slider(self,label_text, min_value, max_value, initial_value, callback):
         slider_frame = QWidget()
         h_layout = QHBoxLayout(slider_frame)
-        layout.addWidget(slider_frame)
+        self.options_layout.addWidget(slider_frame)
         label = QLabel(label_text)
         h_layout.addWidget(label)
 
