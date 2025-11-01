@@ -22,8 +22,8 @@ uniform float TDELTA;
 float BONDR = 4;
 uniform float BOND_KOEFF;
 uniform float ATTRACTION_KOEFF;
-uniform float INTERACT_KOEFF;
-uniform float INTERACT_KOEFF2=100;
+uniform float CHARGE_KOEFF;
+uniform float SPIN_KOEFF;
 uniform float FIELD_KOEFF;
 uniform float ROTA_KOEFF;
 uniform float CONUS_KOEFF = 0.866;
@@ -161,7 +161,7 @@ void main()
             }
             else {  //far field
                 vec3 delta = In.atoms[i].pos.xyz - In.atoms[j].pos.xyz;
-                float e1= Static.atoms[j].q*INTERACT_KOEFF/r/r;
+                float e1= Static.atoms[j].q*CHARGE_KOEFF/r/r;
                 E += e1 * delta/r;  
             }
 
@@ -289,7 +289,7 @@ void main()
             float f2,f3,f4,f5;
 
             //if (r>sumradius){
-            float e= atom_jS.q*INTERACT_KOEFF/r/r;
+            float e= atom_jS.q*CHARGE_KOEFF/r/r;
             E += delta/r * e;
             //}
             
@@ -348,7 +348,11 @@ void main()
                             f5 = f;
                         }
                         else {
+                            //float f= abs(edelta) * ni_spin * nj_spin * CHARGE_KOEFF/rn/rn;
                             f4 = 500*exp(-1.2*rn); // pauli!
+                            ///f5 = f4;
+                            //f4=f;
+                            //f5=f;
                             //atom_iS.highlight = 50;
                         }
                     }
@@ -356,19 +360,19 @@ void main()
                     else {
                     
                         /*if (rn < BONDR*1.5  ){
-                            float f= abs(edelta) * ni_spin * nj_spin * INTERACT_KOEFF/rn/rn;
+                            float f= abs(edelta) * ni_spin * nj_spin * CHARGE_KOEFF/rn/rn;
                             f4+=f;
                             f5+=f;
                         }*/
 
                         if (ni_bonded == 0.0 && nj_bonded ==0.0 &&  ni_spin + nj_spin==0 ){
-                            float f= ni_spin * nj_spin * INTERACT_KOEFF2/rn/rn;
+                            float f= ni_spin * nj_spin * SPIN_KOEFF/rn/rn;
                             f4+= f;
                             f5+= f;
                         }
                                     
                         if (ni_bonded == 0.0 && nj_bonded==0.0 && ni_q + nj_q==0 ){ 
-                            float f = ni_q * nj_q * INTERACT_KOEFF/rn/rn;
+                            float f = ni_q * nj_q * CHARGE_KOEFF/rn/rn;
                             f4+= f;
                             f5+= f;
                             
@@ -384,7 +388,7 @@ void main()
                                 if (ld==0.0) continue;
                                 float conus_i  = dot(ni_realpos,-delta)/atom_iS.r/ld;
                                 if(  conus_i>CONUS_KOEFF ){   
-                                    float f = atom_jS.q* ni_q * INTERACT_KOEFF/rc/rc;
+                                    float f = atom_jS.q* ni_q * CHARGE_KOEFF/rc/rc;
                                     FN+= cdelta/rc*f;
                                     
                                 }

@@ -19,7 +19,8 @@ class Space:
         self.TDELTA = 1.0
         self.BOND_KOEFF = 200
         self.BONDR = 4.0
-        self.INTERACT_KOEFF= 500.0
+        self.CHARGE_KOEFF= 500.0
+        self.SPIN_KOEFF= 30.0
         self.FIELD_KOEFF= 1.0
         self.ROTA_KOEFF = 10.0
         self.REPULSION1 = -6

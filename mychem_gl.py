@@ -351,7 +351,7 @@ class GLWidget(QOpenGLWidget):
             self.compute_shader.init_uniforms(["N","stage", "box", "iTime",
                                                 "bondlock", "gravity", "redox",
                                                 "shake", "TDELTA", "BOND_KOEFF",
-                                                "INTERACT_KOEFF", "REPULSION_SIGMA", "REPULSION_POW","REPULSION_EPS",
+                                                "CHARGE_KOEFF", "SPIN_KOEFF", "REPULSION_SIGMA", "REPULSION_POW","REPULSION_EPS",
                                                 "ATTRACTION_KOEFF",  "ROTA_KOEFF", "MASS_KOEFF",
                                                 "FIELD_KOEFF",  "NEARDIST", "NODEDIST", "HEAT",
                                                 "highlight_unbond",  "sideheat", "efield", "test"
@@ -536,7 +536,8 @@ class GLWidget(QOpenGLWidget):
             s.setInt("redox",self.space.redox)
             s.setInt("shake",self.space.shake)
             s.setFloat("BOND_KOEFF",self.space.BOND_KOEFF)
-            s.setFloat("INTERACT_KOEFF",self.space.INTERACT_KOEFF)
+            s.setFloat("CHARGE_KOEFF",self.space.CHARGE_KOEFF)
+            s.setFloat("SPIN_KOEFF",self.space.SPIN_KOEFF)
             s.setFloat("REPULSION_SIGMA",self.space.REPULSION_SIGMA)
             s.setFloat("REPULSION_POW",self.space.REPULSION_POW)
             s.setFloat("REPULSION_EPS",self.space.REPULSION_EPS)

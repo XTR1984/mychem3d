@@ -1038,12 +1038,13 @@ class OptionsFrame(QDialog):
 
         # Создание слайдеров и меток
         self.create_slider("Update delta", 1, 150, self.space.update_delta, self.set_delta)
-        self.create_slider("Interact koeff", 0, 10000, int(self.space.INTERACT_KOEFF), self.set_interk)
+        self.create_slider("Charge koeff", 0, 5000, int(self.space.CHARGE_KOEFF), self.set_chargek)
+        self.create_slider("Spin koeff", 0, 200, int(self.space.SPIN_KOEFF), self.set_spink)
         self.create_slider("Repulsion sigma", -15, 50, int(self.space.REPULSION_SIGMA), self.set_repulsek1)
         self.create_slider("Repulsion power", 1, 15, int(self.space.REPULSION_POW), self.set_repulsek2)
         self.create_slider("Repulsion eps", 1, 300, int(self.space.REPULSION_EPS*100), self.set_repulsek3)
         self.create_slider("Attracion koeff", 0, 200, int(self.space.ATTRACTION_KOEFF), self.set_attraction)
-        self.create_slider("Bond koeff", 1, 1000, self.space.BOND_KOEFF, self.set_bondk)
+        self.create_slider("Bond koeff", 0, 500, self.space.BOND_KOEFF, self.set_bondk)
         self.create_slider("Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
         self.create_slider("Mass koeff", 1, 50, self.space.MASS_KOEFF, self.set_massk)
         self.create_slider("E-Field koeff", 1, 100, self.space.FIELD_KOEFF, self.set_fieldk)
@@ -1116,9 +1117,14 @@ class OptionsFrame(QDialog):
         self.space.update_delta = int(value)
 
 
-    def set_interk(self, value):
-        self.space.INTERACT_KOEFF = float(value)
+    def set_chargek(self, value):
+        self.space.CHARGE_KOEFF = float(value)
         self.glframe.update_uniforms = True
+
+    def set_spink(self, value):
+        self.space.SPIN_KOEFF = float(value)
+        self.glframe.update_uniforms = True
+
 
     def set_repulsek1(self, value):
         self.space.REPULSION_SIGMA = float(value)
