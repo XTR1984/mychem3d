@@ -119,10 +119,10 @@ def double_info(a1, a2,space):
     print(f"Delta = {delta}, Distance={glm.length(delta):.3f}")
     print(f"R1 = {a1.r}, R2= {a2.r}, sumrad = {a1.r+a2.r} ")
     r = glm.length(delta)
-    FK = space.INTERACT_KOEFF*a1.q * a2.q/glm.length2(delta)
+    FK = space.CHARGE_KOEFF*a1.q * a2.q/glm.length2(delta)
     sumradius = a1.r + a2.r
-    sgm = sumradius+space.REPULSION_KOEFF1; 
-    FR = pow(sgm/r,space.REPULSION_KOEFF2);    
+    sgm = sumradius+space.REPULSION_SIGMA; 
+    FR = space.REPULSION_EPS*pow(sgm/r,space.REPULSION_POW);    
     F = FK+FR
     print(f"FK={FK:.3f}  FR={FR:.3f} F={F:.3f}")
     print("node distance:")
