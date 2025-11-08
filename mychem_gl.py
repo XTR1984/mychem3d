@@ -73,8 +73,23 @@ class GLWidget(QOpenGLWidget):
 
         params = {"LOCALSIZEX":str(self.LOCALSIZEX)}
         self.select_shader = ComputeShader("select.glsl", params)
-        
-        self.init_uniforms()
+
+        #init uniforms     
+        self.compute_shader.init_uniforms(["N","stage", "box", "iTime",
+                                                "bondlock", "gravity", "redox",
+                                                "shake", "TDELTA", "BOND_KOEFF",
+                                                "CHARGE_KOEFF", "SPIN_KOEFF", "REPULSION_SIGMA", "REPULSION_POW","REPULSION_EPS",
+                                                "ATTRACTION_KOEFF",  "ROTA_KOEFF", "MASS_KOEFF",
+                                                "FIELD_KOEFF",  "NEARDIST", "NODEDIST", "HEAT",
+                                                "highlight_unbond",  "sideheat", "efield", "test"
+                                               ]
+                                              )
+        self.shader.init_uniforms([ "model", "objectColor", "view", "projection", "mode", "nodeindex",
+                                         "lightPos", "transparency", "nicefactor" 
+                                      ])
+            
+        self.select_shader.init_uniforms(["shift", "select_param"])
+
 
         self.cameraUp = glm.vec3(0,1,0)
         self.cameraFront = glm.vec3(0.5,0.5,-1)
@@ -346,20 +361,6 @@ class GLWidget(QOpenGLWidget):
                 offset += ctypes.sizeof(NodeC)
                 offsetS+= ctypes.sizeof(NodeCS)
 
-
-    def init_uniforms(self):
-            self.compute_shader.init_uniforms(["N","stage", "box", "iTime",
-                                                "bondlock", "gravity", "redox",
-                                                "shake", "TDELTA", "BOND_KOEFF",
-                                                "CHARGE_KOEFF", "SPIN_KOEFF", "REPULSION_SIGMA", "REPULSION_POW","REPULSION_EPS",
-                                                "ATTRACTION_KOEFF",  "ROTA_KOEFF", "MASS_KOEFF",
-                                                "FIELD_KOEFF",  "NEARDIST", "NODEDIST", "HEAT",
-                                                "highlight_unbond",  "sideheat", "efield", "test"
-                                               ]
-                                              )
-            self.shader.init_uniforms([ "model", "objectColor", "view", "projection", "mode", "nodeindex",
-                                         "lightPos", "transparency", "nicefactor" 
-                                      ])
 
     def create_objects(self):
         print("create objects")
@@ -694,7 +695,7 @@ class GLWidget(QOpenGLWidget):
                 self.status_bar.setFPS(self.nframes/tm)
         #self.doneCurrent()
 
-    def expand_selection(self, selected_atoms):
+    def expand_selection(self, selected_atoms,shift):
         sel_time_begin = time.time()
         self.makeCurrent()
         self.select_shader.use()
@@ -715,7 +716,9 @@ class GLWidget(QOpenGLWidget):
 
         self.atoms_buffer.bind_to(0)
         self.rpos_buffer.bind_to(5)
-       
+
+        self.select_shader.setInt("shift",shift) 
+        self.select_shader.setInt("select_param",self.space.select_param) 
         self.select_shader.run(self.space.N,1,1)        
 
         counter = counter_buffer.subread(4)

@@ -941,9 +941,10 @@ class MainWindow(QMainWindow):
                 self.space.rotate_atoms(self.space.merge_atoms, self.space.merge_center, glm.quat(cos(glm.radians(angle)), sin(glm.radians(angle))*glm.vec3(0,0,1))  )
             if self.ttype=="ra":
                 self.space.rotate_atoms(self.space.merge_atoms, self.space.axis_origin, glm.quat(cos(glm.radians(angle)), sin(glm.radians(angle))*self.space.axis) )
-         elif self.space.select_mode==1: #select molecule
+         
+         elif self.space.select_mode==1: #select molecule or atoms (shift)
             if delta>0:
-                new_selected = self.glframe.expand_selection(self.space.selected_atoms)
+                new_selected = self.glframe.expand_selection(self.space.selected_atoms,shift)
                 self.space.selected_atoms += new_selected
                 if len(self.space.selected_atoms)==2:
                     double_info(self.space.atoms[self.space.selected_atoms[0]],self.space.atoms[self.space.selected_atoms[1]],self.space)
@@ -1048,6 +1049,7 @@ class OptionsFrame(QDialog):
         self.create_slider("Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
         self.create_slider("Mass koeff", 1, 50, self.space.MASS_KOEFF, self.set_massk)
         self.create_slider("E-Field koeff", 1, 100, self.space.FIELD_KOEFF, self.set_fieldk)
+        self.create_slider("Select expand param", 20, 500, self.space.select_param, self.set_selectparam)
         self.sizex = self.create_slider("Container size X", 1, 50, int(self.space.WIDTH / 100), self.set_size)
         self.sizey = self.create_slider("Container size Y", 1, 50, int(self.space.HEIGHT / 100), self.set_size)
         self.sizez = self.create_slider("Container size Z", 1, 50, int(self.space.DEPTH / 100), self.set_size)
@@ -1180,6 +1182,8 @@ class OptionsFrame(QDialog):
         else:
             self.glframe.nicefactor = 1.0
 
+    def set_selectparam(self,value):
+        self.space.select_param=value 
 
     def set_size(self, value):
         sx = self.sizex.value()

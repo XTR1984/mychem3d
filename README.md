@@ -8,6 +8,7 @@ for use install libraries:
 
 Tested on:
 - integrated Intel Iris Xe Graphics
+- rx580 card
 
 Be careful. This application may create misconceptions about chemical interactions
 
@@ -28,8 +29,9 @@ Controls:
 
 
 Selection atoms
-1. molecule selection mode
-  -  click an atom, then use the mouse wheel to add neighboring atoms to the selection
+1. molecule and atoms selection mode
+  -  click an atom, then use the mouse wheel to add neighboring bondes atoms to the selection
+  -  shift for select unbonded atoms too with selection distance param (options) 
   -  ctrl + click  - append/remove to/from selection
   -  enter or click on selection - go to merge mode with selected atoms
   -  also "r" and "g" - go to merge mode with move and rotation

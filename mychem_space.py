@@ -50,6 +50,7 @@ class Space:
         self.axis_origin = glm.vec3(0)
         self.select_mode = 0
         self.selected_atoms = [] 
+        self.select_param = 40
         self.gravity = False
         self.shake= False
         self.SHAKE_KOEFF = 0.5
