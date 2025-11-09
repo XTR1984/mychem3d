@@ -40,11 +40,12 @@ class MainWindow(QMainWindow):
         self.resetdata = self.space.make_export()
         self.setWindowTitle("MyChem 3D")
         self.undostack = UndoStack(limit=30)
-        self.init_menu()
+        self.init_menu_and_actions()
         self.lastX = 512
         self.lastY = 300
         self.motion = False
         self.optionsframe = None
+        self.is_fullscreen = False
         #QShortcut( '1', self ).activated.connect(self.handle_add_atom2)
         #QShortcut( '2', self ).activated.connect(self.handle_add_atom2)
         #QShortcut( '3', self ).activated.connect(self.handle_add_atom2)
@@ -90,6 +91,7 @@ class MainWindow(QMainWindow):
         self.glframe.main = self
         self.layout.addWidget(self.glframe)
         self.qw.setLayout(self.layout)
+        self.qw.layout().setContentsMargins(0, 0, 0, 0)        
         self.resize(1024, 600)
         self.setCentralWidget(self.qw)
         #self.glframe.bind("<B1-Motion>", self.handle_mouse1move)
@@ -124,7 +126,7 @@ class MainWindow(QMainWindow):
         self.status_bar.set("Ready")
 
 
-    def init_menu(self):
+    def init_menu_and_actions(self):
         space:Space
         self.menu_bar = self.menuBar()
         file_menu = self.menu_bar.addMenu("File")
@@ -138,8 +140,12 @@ class MainWindow(QMainWindow):
         file_menu.addAction(QAction('Save selected', self, triggered=self.file_save_selected, shortcut='Ctrl+Alt+s'))
         file_menu.addAction(QAction('Exit', self, triggered=self.file_exit, shortcut='Alt+Q'))        
         sim_menu = self.menu_bar.addMenu("Simulation")
-        sim_menu.addAction(QAction("Go/Pause",self,triggered=self.handle_space, shortcut="Space"))
-        sim_menu.addAction(QAction("Reset",self,triggered=self.handle_reset, shortcut="Alt+r"))
+        self.spaceaction = QAction("Go/Pause",self,triggered=self.handle_space, shortcut="Space")
+        self.addAction(self.spaceaction)
+        sim_menu.addAction(self.spaceaction)
+        self.resetaction = QAction("Reset",self,triggered=self.handle_reset, shortcut="Alt+r")
+        self.addAction(self.resetaction)
+        sim_menu.addAction(self.resetaction)
         sim_menu.addAction(QAction("Invert velocities",self,triggered=self.handle_invert, shortcut="Alt+i"))
         self.shake_action = QAction("Random shake",self,triggered=self.handle_shake, shortcut="s",checkable=True)
         sim_menu.addAction(self.shake_action)
@@ -166,6 +172,9 @@ class MainWindow(QMainWindow):
         self.record_data_action.setChecked(self.space.record_data)
         sim_menu.addAction(self.record_data_action)
         sim_menu.addAction(QAction("Clear records",self,triggered=self.handle_clear_records))
+        self.f11action = QAction("Toggle Fullscreen", self,triggered=self.toggle_fullscreen, shortcut="F11")
+        sim_menu.addAction(self.f11action)
+        self.addAction(self.f11action)
         add_menu = self.menu_bar.addMenu("Add")
         add_menu.addAction(QAction("H",self,triggered=lambda:self.handle_add_atom(keysym="1"), shortcut="1"))
         add_menu.addAction(QAction("O",self,triggered=lambda:self.handle_add_atom(keysym="2"), shortcut="2"))
@@ -177,6 +186,8 @@ class MainWindow(QMainWindow):
         self.menu_bar.addAction(QAction("Options",self,triggered=self.options_window ))
         examples_menu = self.menu_bar.addMenu("Examples")
         self.create_json_menu(examples_menu,"examples/")
+
+        
 
 
     def create_json_menu(self,menu, lpath):
@@ -743,6 +754,8 @@ class MainWindow(QMainWindow):
 
 
     def handle_escape(self,event=None):
+        if self.is_fullscreen:
+            self.toggle_fullscreen()
         if self.merge_mode:
             self.merge_mode = False
             self.space.merge_atoms = []
@@ -990,6 +1003,24 @@ class MainWindow(QMainWindow):
             self.optionsframe = OptionsFrame(self)
             self.optionsframe.show()
             #self.optionsframe.exec()
+
+    def toggle_fullscreen(self):
+        if self.is_fullscreen:
+            self.showNormal()
+            if self.normal_geometry:
+                self.setGeometry(self.normal_geometry)
+            self.is_fullscreen = False
+            self.menu_bar.setVisible(True)
+            self.status_bar.setVisible(True)
+        else:
+            self.normal_geometry = self.geometry()
+            self.showFullScreen()
+            self.is_fullscreen = True            
+            self.menu_bar.hide()
+            self.status_bar.hide()
+
+            
+
 
     def closeEvent(self, event):  
         for window in QApplication.topLevelWidgets():
@@ -1317,6 +1348,7 @@ class AtomProperties(QDialog):
             self.a.nodes[i].spin = spin
         if all_good:
             self.accept()
+
 
 import traceback
 def handle_exception(exc_type, exc_value, exc_traceback):
