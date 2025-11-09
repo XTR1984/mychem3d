@@ -199,6 +199,7 @@ class MainWindow(QMainWindow):
             self.space.load_data(data)
             self.resetdata = data
             self.space.atoms2compute()
+            self.glframe.calcfirst()            
             self.status_bar.set('Undo')
 
     def setHeat(self, value):
@@ -399,6 +400,7 @@ class MainWindow(QMainWindow):
         self.space.appendmixer(1)
         #self.resetdata = self.space.make_export()
         self.space.atoms2compute()
+        self.glframe.calcfirst()            
 
 
     def handle_bondlock(self,checked):
@@ -434,6 +436,7 @@ class MainWindow(QMainWindow):
         self.resetdata = json.loads(f.read())
         self.space.load_data(self.resetdata)
         self.space.atoms2compute()
+        self.glframe.calcfirst()            
         self.status_bar.set("File loaded")
         f.close()
 
@@ -493,6 +496,7 @@ class MainWindow(QMainWindow):
         self.recentdata = mergedata
         self.mergemode()
         self.space.atoms2compute()
+        self.glframe.calcfirst()            
         if result:
             self.status_bar.set("Imported")
         else:
@@ -522,16 +526,16 @@ class MainWindow(QMainWindow):
         self.undostack.push(self.space.make_export())
         self.space.load_data(self.recentdata, merge=True)
         self.unselect()
-        (center,distant) = self.space.get_atoms_distant(self.space.merge_atoms)
+        #(center,distant) = self.space.get_atoms_distant(self.space.merge_atoms)
         number, ok = QInputDialog.getInt(None, "Input number", "How many?")        
         if not ok :
             return
         for i in range(0,number):
             self.space.merge_atoms = []
-            distant = glm.round(distant)
-            x= random.randint(distant.x+10,self.space.WIDTH-distant.x-10)
-            y= random.randint(distant.y+10,self.space.HEIGHT-distant.y-10)
-            z= random.randint(distant.z+10,self.space.DEPTH-distant.z-10)
+            #distant = glm.round(distant)
+            x= random.randint(0,self.space.WIDTH)
+            y= random.randint(0,self.space.HEIGHT)
+            z= random.randint(0,self.space.DEPTH)
             self.space.load_data(self.recentdata, merge=True)
             ##self.space.move_atoms(self.space.merge_atoms,(self.space.box/2-self.space.get_mergeobject_center()))
             self.space.move_atoms(self.space.merge_atoms, glm.vec3(x,y,z)-self.space.get_mergeobject_center())
@@ -545,6 +549,7 @@ class MainWindow(QMainWindow):
         self.space.merge_rot = glm.quat()
         self.resetdata = self.space.make_export()
         self.space.atoms2compute()
+        self.glframe.calcfirst()            
         self.merge_mode = False
         self.update_status()
 
@@ -585,6 +590,7 @@ class MainWindow(QMainWindow):
             for s in self.space.selected_atoms:
                 self.space.atoms[s].fixed = True
             self.space.atoms2compute()
+            self.glframe.calcfirst()            
             self.status_bar.set("fix selected atoms")
 
     def handle_unfix(self,event=None):
@@ -593,6 +599,7 @@ class MainWindow(QMainWindow):
             for s in self.space.selected_atoms:
                 self.space.atoms[s].fixed = False
             self.space.atoms2compute()
+            self.glframe.calcfirst()            
             self.status_bar.set("unfix selected atoms")
     
     def handle_duplicate(self,event=None):
@@ -627,6 +634,7 @@ class MainWindow(QMainWindow):
         if ap.exec_() == QDialog.Accepted:
             print("saved")
             self.space.atoms2compute()
+            self.glframe.calcfirst()            
         else:
             print("not saved")
     
@@ -647,6 +655,7 @@ class MainWindow(QMainWindow):
                 self.space.atoms[self.space.selected_atoms[0]].nodeselect=-1
                 self.space.atoms[self.space.selected_atoms[1]].nodeselect=-1
                 self.space.atoms2compute()
+                self.glframe.calcfirst()            
             else: 
                 self.status_bar.set("Bond atoms fail")
                 
@@ -675,6 +684,7 @@ class MainWindow(QMainWindow):
         self.file_new()
         self.space.load_data(self.resetdata)
         self.space.atoms2compute()
+        self.glframe.calcfirst()            
         self.status_bar.set("Reset to previos loaded")
 
     def handle_invert(self,event=None):
@@ -683,6 +693,7 @@ class MainWindow(QMainWindow):
             a.v = -a.v
             a.rotv = glm.inverse(a.rotv)
         self.space.atoms2compute()
+        self.glframe.calcfirst()            
 
     def handle_add_atom2(self,event=None):
         self.handle_add_atom(keysym=event.keysym)
@@ -713,6 +724,7 @@ class MainWindow(QMainWindow):
             self.space.appendatom(a2)
             self.space.selected_atoms=[len(self.space.atoms)-1]
             self.space.atoms2compute()
+            self.glframe.calcfirst()            
             self.status_bar.set("Extended")
             
 
@@ -730,7 +742,7 @@ class MainWindow(QMainWindow):
 
 
 
-    def handle_escape(self,event):
+    def handle_escape(self,event=None):
         if self.merge_mode:
             self.merge_mode = False
             self.space.merge_atoms = []
@@ -748,6 +760,7 @@ class MainWindow(QMainWindow):
             self.space.merge_atoms = []
             #self.merge_mode = True
             self.space.atoms2compute()
+            self.glframe.calcfirst()            
             self.unselect()
 
     
@@ -841,6 +854,7 @@ class MainWindow(QMainWindow):
             self.mergemode()
             self.space.atoms2compute()
             self.space.selected_atoms = []
+            self.glframe.calcfirst()            
             return
         if self.merge_mode:
             self.space.compute2atoms()
@@ -849,6 +863,7 @@ class MainWindow(QMainWindow):
             self.space.merge2atoms()
             self.resetdata = self.space.make_export()
             self.space.atoms2compute()
+            self.glframe.calcfirst()            
             #self.resetdata = self.space.make_export()
             self.status_bar.set("Merged")
 

@@ -290,8 +290,8 @@ class GLWidget(QOpenGLWidget):
         self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
 
 
-        #self.compute_shader.setInt("stage",4)   # bonded state
-        #self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
+        self.compute_shader.setInt("stage",4)   # bonded state
+        self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
 
 
     def atom2ssbo(self,a):
