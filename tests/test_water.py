@@ -27,7 +27,7 @@ if __name__ == '__main__':
         x = random.randint(0,space.WIDTH)
         y = random.randint(0,space.HEIGHT)
         z = random.randint(0,space.DEPTH)        
-        i=space.merge_from_file("examples/simple/H2O.json",x,y,z,rot)
+        (i,_)=space.merge_from_file("examples/simple/H2O.json",x,y,z,rot)
         for n in range(0,3):
             color = space.atoms[i+n].color
             space.atoms[i+n].color=color[0:3] + (0.1,)
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     #App.heat.set(-200)
 
     #space.MASS_KOEFF = 5    space.NEARDIST=100
-    space.tranparentmode= True
+    #space.tranparentmode= True
      #space.recording = True
     #space.appendmixer(1)
     #space.redox.set(True)

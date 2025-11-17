@@ -20,7 +20,7 @@ def action1(space):
             dx = 30
             dy = 0
             dz = 0
-            i1=space.merge_from_file("examples/simple/OH.json",x+dx,y+dz,z+dy,rot)
+            (i1,_)=space.merge_from_file("examples/simple/OH.json",x+dx,y+dz,z+dy,rot)
             space.atoms[i1].nodes[1].q=-1
             space.atoms[i1].nodes[1].spin=-1
 #        for i in range(0,20):
