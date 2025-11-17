@@ -105,8 +105,8 @@ class MainWindow(QMainWindow):
         self.merge_mode = False
         self.ttype = "mx"
         self.heat = QSlider()
-        self.heat.setMinimum(-150)
-        self.heat.setMaximum(150)
+        self.heat.setMinimum(-50)
+        self.heat.setMaximum(50)
         self.heat.setMinimumHeight(300)
         self.heat.setMaximumWidth(20)
         self.heat.valueChanged.connect(self.setHeat)
