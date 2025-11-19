@@ -5,7 +5,6 @@ layout(local_size_x=1, local_size_y=1,local_size_z=1) in;
 // Input uniforms go here if you need them.
 
 //uniform float frame_time;
-float BONDR = 4;
 uniform int shift;   //shift key modifier
 uniform int select_param; 
 

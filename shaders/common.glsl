@@ -34,3 +34,6 @@ struct AtomD {
     NodeD nodes[5];
 };
 
+
+float BONDR = 4;
+

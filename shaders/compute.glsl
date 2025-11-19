@@ -19,7 +19,6 @@ uniform int sideheat;
 
 //uniform float frame_time;
 uniform float TDELTA;
-float BONDR = 4;
 uniform float BOND_KOEFF;
 uniform float ATTRACTION_KOEFF;
 uniform float CHARGE_KOEFF;
@@ -27,7 +26,6 @@ uniform float SPIN_KOEFF;
 uniform float FIELD_KOEFF;
 uniform float ROTA_KOEFF;
 uniform float CONUS_KOEFF = 0.866;
-float REPULSION1 = -6;
 uniform float REPULSION_SIGMA;
 uniform float REPULSION_POW;
 uniform float REPULSION_EPS;
@@ -337,20 +335,29 @@ void main()
 
                     float edelta = tbl_elneg[int(atom_jS.type)] - tbl_elneg[int(atom_iS.type)];
                     
-                    if (rn<=BONDR  ){                        
-                        if (ni_spin + nj_spin==0 && ni_q + nj_q == 0){
+                    if (rn<=BONDR  ){
+                        bool spinok = ni_spin + nj_spin==0 && ni_q + nj_q == 0;
+                        if (ni_bonded == 0.0 && nj_bonded == 0.0) {
+                            if (spinok){
+                                bondcheck[ni]=1.0;
+                                ni_bonded = 1.0;
+                                nj_bonded = 1.0;
+                            }
+                        }           
+                        if (ni_bonded == 1.0 && nj_bonded == 1.0 && spinok){
+                        //if (ni_spin + nj_spin==0 && ni_q + nj_q == 0){
                             qshift_buffer[i][ni]=0.3*edelta + 0.1*(atom_jS.q-atom_iS.q);
                             atom_i.nodes[ni].q = 0;
                             atom_i.nodes[ni].spin = 2*int(i<j)-1;   //+mod(time,2)?
                             bondcheck[ni]=1.0;
-                            float f = -rn* BOND_KOEFF*0.01;
+                            float f = -rn* BOND_KOEFF*0.01; //+dot(normalize(ni_realpos), -normalize(nj_realpos));
                             f4 = f;
                             f5 = f;
                         }
                         else {
                             //float f= abs(edelta) * ni_spin * nj_spin * CHARGE_KOEFF/rn/rn;
-                            f4 = 500*exp(-1.2*rn); // pauli!
-                            ///f5 = f4;
+                            f4 = 500*exp(-rn); // pauli!
+                            f5 = f4*0.01;
                             //f4=f;
                             //f5=f;
                             //atom_iS.highlight = 50;
@@ -365,6 +372,7 @@ void main()
                             f5+=f;
                         }*/
 
+                        
                         if (ni_bonded == 0.0 && nj_bonded ==0.0 &&  ni_spin + nj_spin==0 ){
                             float f= ni_spin * nj_spin * SPIN_KOEFF/rn/rn;
                             f4+= f;
@@ -376,7 +384,7 @@ void main()
                             f4+= f;
                             f5+= f;
                             
-                        }
+                        }  
                         
                     }
                     
@@ -468,7 +476,7 @@ void main()
 
 //heating
    if (sideheat==1){
-        if (pos_i.y<100.0) v_i+=HEAT* vec3(0,0.0001,0);
+        if (pos_i.y<100.0) v_i+=HEAT* vec3(0,0.001,0) * (1-pos_i.y*0.01) * rand(pos_i.xy);
         //v_i +=  v_i * HEAT*0.0001;      
    }
    else v_i +=  v_i * HEAT*0.0001;      
