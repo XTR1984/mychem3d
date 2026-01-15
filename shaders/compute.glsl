@@ -348,7 +348,8 @@ void main()
                         //if (ni_spin + nj_spin==0 && ni_q + nj_q == 0){
                             qshift_buffer[i][ni]=0.3*edelta + 0.1*(atom_jS.q-atom_iS.q);
                             atom_i.nodes[ni].q = 0;
-                            atom_i.nodes[ni].spin = 2*int(i<j)-1;   //+mod(time,2)?
+                            //atom_i.nodes[ni].spin = (2*(int(i<j) ^ (i+j)%2)-1);   //+mod(time,2)?
+                            atom_i.nodes[ni].spin = (2*int(i<j)-1) * (2*((i+j)%2)-1);   //+mod(time,2)?
                             bondcheck[ni]=1.0;
                             float f = -rn* BOND_KOEFF*0.01; //+dot(normalize(ni_realpos), -normalize(nj_realpos));
                             f4 = f;
