@@ -26,9 +26,9 @@ class mychemApp(QApplication):
         super().__init__(a)
         self.space = Space()
 
-    def run(self):
+    def run(self, pause=True):
         self.root = MainWindow(self, self.space)
-        self.space.pause = True
+        self.space.pause = pause
         self.exec()
 
 
