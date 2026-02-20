@@ -92,24 +92,6 @@ class GLWidget(QOpenGLWidget):
                   "NEARATOMSMAX":str(self.nearatomsmax)}
         self.bonded_shader = ComputeShader("bonded.glsl", params)
 
-
-        #init uniforms     
-        self.compute_shader.init_uniforms(["N","stage", "box", "iTime",
-                                                "bondlock", "gravity","shake", "TDELTA", "BOND_KOEFF",
-                                                "CHARGE_KOEFF", "SPIN_KOEFF", "REPULSION_SIGMA", "REPULSION_POW","REPULSION_EPS",
-                                                "ATTRACTION_KOEFF",  "ROTA_KOEFF", "MASS_KOEFF",
-                                                "FIELD_KOEFF", "NODEDIST", "HEAT",
-                                                "highlight_unbond",  "sideheat", "efield", "test"
-                                               ]
-                                              )
-        self.shader.init_uniforms([ "model", "objectColor", "view", "projection", "mode", "nodeindex",
-                                         "lightPos", "transparency", "nicefactor" 
-                                      ])
-            
-        self.select_shader.init_uniforms(["shift", "select_param"])
-        self.rredox_shader.init_uniforms(['box'])
-        self.near_shader.init_uniforms(["N","box", "CHARGE_KOEFF", "NEARDIST"])
-
         self.camera.pos = glm.vec3(0.5,0.5,2)
         self.cubemap_cameraPos = glm.vec3(1.0,0.5,1.0)        
 
