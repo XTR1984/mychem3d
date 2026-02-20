@@ -230,7 +230,7 @@ class GLWidget(QOpenGLWidget):
                     a_dataS += nbytearrayS
                 for i in range(0,5-len(a.nodes)):
                     nbytearray = bytearray(ctypes.sizeof(NodeC))
-                    nbytearray = bytearray(ctypes.sizeof(NodeCS))
+                    nbytearrayS = bytearray(ctypes.sizeof(NodeCS))
                     a_data += nbytearray
                     a_dataS += nbytearrayS
         datasize = len(a_data)
