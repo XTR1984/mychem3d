@@ -5,6 +5,9 @@ import glm
 import re
 
 class CommonShader:
+    def __init__(self):
+        self.source = ""
+
     def load_shader_source(self,filepath, current_line=1, is_root=True):
         with open("shaders/"+filepath, 'r') as file:
             lines = file.readlines()
@@ -29,13 +32,22 @@ class CommonShader:
     def unuse(self):
         glUseProgram(0)        
 
+    def extract_uniform_names(self,glsl_code):
+        pattern = r'uniform\s+\w+\s+(\w+)(?:\s*=\s*[^;]+)?\s*;'
+        uniforms = re.findall(pattern, glsl_code)
+        return uniforms
 
+    def init_uniforms(self):
+        uniforms = self.extract_uniform_names(self.source)
+        if len(uniforms)>0:
+            self.init_uniforms0(uniforms)
 
-    def init_uniforms(self,uniforms= []):
+    def init_uniforms0(self,uniforms= []):
         self.loc = {}
         for u in uniforms:
             self.loc[u] = glGetUniformLocation(self.program, u)
             #self.loc.update( {"stage": glGetUniformLocation(self.compute_shader, "stage")})
+
     def setInt(self, name, value:int):
         glUniform1i(self.loc[name],value)
 
@@ -62,13 +74,17 @@ class CommonShader:
 
 
 class Shader(CommonShader):
-    def __init__(self, vertex_shader_source, fragment_shader_source):
+    def __init__(self, vertex_shader_path, fragment_shader_path):
         self.program = glCreateProgram()
-        self.vertex_shader = self.compile_shader(self.load_shader_source(vertex_shader_source), GL_VERTEX_SHADER)
-        self.fragment_shader = self.compile_shader(self.load_shader_source(fragment_shader_source), GL_FRAGMENT_SHADER)
+        self.vertex_shader_source = self.load_shader_source(vertex_shader_path)
+        self.vertex_shader = self.compile_shader(self.vertex_shader_source, GL_VERTEX_SHADER)
+        self.fragment_shader_source = self.load_shader_source(fragment_shader_path)        
+        self.fragment_shader = self.compile_shader(self.fragment_shader_source, GL_FRAGMENT_SHADER)
+        self.source = self.vertex_shader_source + self.fragment_shader_source
         glAttachShader(self.program, self.vertex_shader)
         glAttachShader(self.program, self.fragment_shader)
         glLinkProgram(self.program)
+        self.init_uniforms()
 
     def compile_shader(self, source, shader_type):
         shader = glCreateShader(shader_type)
@@ -88,13 +104,15 @@ class Shader(CommonShader):
 class ComputeShader(CommonShader):
     def __init__(self, source_file, pparams={}):
         self.program = glCreateProgram()
-        source= self.load_shader_source(source_file)
+        self.source= self.load_shader_source(source_file)
         for key,value in pparams.items():
-                source = source.replace(key,value)
-        self.compute_shader = OpenGL.GL.shaders.compileShader(source, GL_COMPUTE_SHADER)
+                self.source = self.source.replace(key,value)
+        self.compute_shader = OpenGL.GL.shaders.compileShader(self.source, GL_COMPUTE_SHADER)
         glAttachShader(self.program, self.compute_shader)
         glLinkProgram(self.program)            
- 
+        self.init_uniforms()
+
+
     def run(self, x,y,z, barrier=True):
         glDispatchCompute(x,y,z)     
         if barrier: 
