@@ -5,7 +5,12 @@ class Camera():
     def __init__(self):
         self.yaw = 0
         self.pitch = 0
+        self.up = glm.vec3(0,1,0)
+        self.front = glm.vec3(0.5,0.5,-1)
         self.pos = glm.vec3(0,0,0)
+        self.yaw = -90
+        self.pitch = 0 
+        self.fov = 45        
 
     def update(self, a, b):    
         front = ( cos(glm.radians(self.pitch))*cos(glm.radians(self.yaw)),

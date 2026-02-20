@@ -25,6 +25,7 @@ from PyQt5.QtCore import QTimer
 from shader import Shader,ComputeShader
 from buffer import Buffer
 from camera import Camera
+from camera import Camera
 
 class GLWidget(QOpenGLWidget):
     def __init__(self,space):
@@ -109,14 +110,9 @@ class GLWidget(QOpenGLWidget):
         self.rredox_shader.init_uniforms(['box'])
         self.near_shader.init_uniforms(["N","box", "CHARGE_KOEFF", "NEARDIST"])
 
-        self.camera.up = glm.vec3(0,1,0)
-        self.camera.front = glm.vec3(0.5,0.5,-1)
         self.camera.pos = glm.vec3(0.5,0.5,2)
         self.cubemap_cameraPos = glm.vec3(1.0,0.5,1.0)        
-        self.camera.target = glm.vec3(0.5,0.5,0.5)
-        self.camera.yaw = -90
-        self.camera.pitch = 0 
-        self.camera.fov = 45
+
 
         self.lightPos = glm.vec3(1.0,0.5,1.0)
 
