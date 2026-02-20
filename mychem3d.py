@@ -814,7 +814,7 @@ class MainWindow(QMainWindow):
         y = self.glframe.height() - mpos.y()
         self.glframe.makeCurrent()
         z = gl.glReadPixels(mpos.x(), y, 1, 1, gl.GL_DEPTH_COMPONENT, gl.GL_FLOAT)
-        (x,y,z) = glm.unProject(glm.vec3(mpos.x(), y,z),self.glframe.view,self.glframe.projection, (0,0,self.glframe.width(),self.glframe.height()))
+        (x,y,z) = glm.unProject(glm.vec3(mpos.x(), y,z),self.glframe.camera.view,self.glframe.camera.projection, (0,0,self.glframe.width(),self.glframe.height()))
         pos = glm.vec3(x,y,z) / self.glframe.factor
         near_atom_i= -1
         for i in range(0,N):
