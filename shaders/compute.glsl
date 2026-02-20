@@ -145,51 +145,6 @@ void main()
     AtomS atom_iS = Static.atoms[i]; 
     vec3 pos_i= atom_i.pos.xyz;
 
-    if(stage==3){   //auto spin set
-        for (int ni = 0; ni<atom_iS.ncount; ni++ ) {
-            vec3 ni_realpos = rpos[i][ni].xyz;
-            float ni_type = atom_i.nodes[ni].type;
-            //if (ni_type>1) continue;
-            if (atom_i.nodes[ni].spin ==0 && atom_i.nodes[ni].q==0){
-                for (int j=0;j<i;j++){  //half matrix
-                    AtomD atom_j = In.atoms[j];
-                    AtomS atom_jS = Static.atoms[j];
-                    vec3 pos_j = atom_j.pos.xyz;
-                    vec3 delta = pos_i - pos_j;
-                    float r =     distance(pos_i, pos_j);
-                    if (r==0.0) continue;
-                    for (int nj = 0; nj<atom_jS.ncount; nj++){
-                        vec3 nj_realpos = rpos[j][nj].xyz;
-                        float nj_type = atom_j.nodes[nj].type;
-                        //if (nj_type>1) continue;
-                        float rn = distance(pos_i + ni_realpos, pos_j + nj_realpos);
-                        if (rn<BONDR){
-                            In.atoms[i].nodes[ni].bonded=1.0;
-                            if (atom_j.nodes[nj].spin !=0){
-                                In.atoms[i].nodes[ni].spin = - atom_j.nodes[nj].spin;
-                            }
-                            else {
-                                //randspin
-                                if (rand(atom_i.pos.xy)>=0.5){
-                                    In.atoms[i].nodes[ni].spin = 1;
-                                    In.atoms[j].nodes[nj].spin = -1;
-                                }
-                                else {
-                                    In.atoms[i].nodes[ni].spin = -1;
-                                    In.atoms[j].nodes[nj].spin = 1;
-                                }
-
-
-                            }
-                        }
-                    }
-                }
-                if (In.atoms[i].nodes[ni].spin==0) In.atoms[i].nodes[ni].spin= 2*mod(i+ni,2)-1;
-            }
-        }                
-        return;
-    }
-
     if (stage==4){ // bonded state set
         for (int ni = 0; ni<atom_iS.ncount; ni++ ) {
             vec3 ni_realpos = rpos[i][ni].xyz;

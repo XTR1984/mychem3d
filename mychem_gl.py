@@ -82,6 +82,10 @@ class GLWidget(QOpenGLWidget):
                   }
         self.near_shader = ComputeShader("near.glsl", params)
 
+        params = {"LOCALSIZEX":str(self.LOCALSIZEX),
+                  }
+        self.spinset_shader = ComputeShader("spinset.glsl", params)
+
 
         #init uniforms     
         self.compute_shader.init_uniforms(["N","stage", "box", "iTime",
@@ -292,11 +296,10 @@ class GLWidget(QOpenGLWidget):
 
         self.compute_near()
 
+        self.spinset_shader.use()
+        self.spinset_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
+
         self.compute_shader.use()
-        self.compute_shader.setInt("stage",3) #autospinset
-        self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
-
-
         self.compute_shader.setInt("stage",4)   # bonded state
         self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
 
