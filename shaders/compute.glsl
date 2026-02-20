@@ -145,29 +145,6 @@ void main()
     AtomS atom_iS = Static.atoms[i]; 
     vec3 pos_i= atom_i.pos.xyz;
 
-    if (stage==2){ //calc near atoms  and far field
-        int index = 0;
-        vec3 E = vec3(0,0,0);
-        for (int j=0;j<N;j++){
-            if (i == j) continue;
-            float r = distance(pos_i, In.atoms[j].pos.xyz);
-            if (r==0.0) continue;
-            if (r<NEARDIST){
-                Near.indexes[i][index+1]=j;
-                index++;
-            }
-            else {  //far field
-                vec3 delta = In.atoms[i].pos.xyz - In.atoms[j].pos.xyz;
-                float e1= Static.atoms[j].q*CHARGE_KOEFF/r/r;
-                E += e1 * delta/r;  
-            }
-
-        }
-        Near.indexes[i][0]=index;  // near atoms count
-        Far.F[i].xyz = E * Static.atoms[i].q;
-        return;
-    }
-
     if(stage==3){   //auto spin set
         for (int ni = 0; ni<atom_iS.ncount; ni++ ) {
             vec3 ni_realpos = rpos[i][ni].xyz;

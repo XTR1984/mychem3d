@@ -77,13 +77,18 @@ class GLWidget(QOpenGLWidget):
         params = {"LOCALSIZEX":str(self.LOCALSIZEX)}
         self.rredox_shader = ComputeShader("rredox.glsl", params)
 
+        params = {"NEARATOMSMAX":str(self.nearatomsmax) ,
+                  "LOCALSIZEX":str(self.LOCALSIZEX),
+                  }
+        self.near_shader = ComputeShader("near.glsl", params)
+
 
         #init uniforms     
         self.compute_shader.init_uniforms(["N","stage", "box", "iTime",
-                                                "bondlock", "gravity",                                                "shake", "TDELTA", "BOND_KOEFF",
+                                                "bondlock", "gravity","shake", "TDELTA", "BOND_KOEFF",
                                                 "CHARGE_KOEFF", "SPIN_KOEFF", "REPULSION_SIGMA", "REPULSION_POW","REPULSION_EPS",
                                                 "ATTRACTION_KOEFF",  "ROTA_KOEFF", "MASS_KOEFF",
-                                                "FIELD_KOEFF",  "NEARDIST", "NODEDIST", "HEAT",
+                                                "FIELD_KOEFF", "NODEDIST", "HEAT",
                                                 "highlight_unbond",  "sideheat", "efield", "test"
                                                ]
                                               )
@@ -93,6 +98,7 @@ class GLWidget(QOpenGLWidget):
             
         self.select_shader.init_uniforms(["shift", "select_param"])
         self.rredox_shader.init_uniforms(['box'])
+        self.near_shader.init_uniforms(["N","box", "CHARGE_KOEFF", "NEARDIST"])
 
         self.cameraUp = glm.vec3(0,1,0)
         self.cameraFront = glm.vec3(0.5,0.5,-1)
@@ -284,11 +290,9 @@ class GLWidget(QOpenGLWidget):
         self.compute_shader.setInt("stage",1) # rpos of nodes and atom q
         self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
 
-        self.compute_shader.setFloat("NEARDIST",self.space.NEARDIST)
-        self.compute_shader.setInt("stage",2) #nearatoms
-        self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
+        self.compute_near()
 
-
+        self.compute_shader.use()
         self.compute_shader.setInt("stage",3) #autospinset
         self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
 
@@ -548,7 +552,6 @@ class GLWidget(QOpenGLWidget):
             s.setFloat("ROTA_KOEFF",self.space.ROTA_KOEFF)
             s.setFloat("MASS_KOEFF",self.space.MASS_KOEFF)
             s.setFloat("FIELD_KOEFF",self.space.FIELD_KOEFF)
-            s.setFloat("NEARDIST",self.space.NEARDIST)
             s.setFloat("NODEDIST",self.space.NODEDIST)
             s.setFloat("HEAT",float(self.space.heat))
             s.setInt("sideheat",self.space.sideheat)
@@ -556,6 +559,14 @@ class GLWidget(QOpenGLWidget):
             s.setInt("test",self.space.test)
             s.setInt("highlight_unbond",self.space.highlight_unbond)
             print("set compute vars")
+
+    def compute_near(self):
+        self.near_shader.use()
+        glUniform3fv(self.near_shader.loc["box"], 1, glm.value_ptr(self.space.box))
+        self.near_shader.setFloat("NEARDIST",self.space.NEARDIST)
+        self.near_shader.setInt("N",self.space.N)
+
+        self.near_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
 
     def compute(self):
         # gpu compute atoms
@@ -574,14 +585,10 @@ class GLWidget(QOpenGLWidget):
                     self.compute_shader.setInt("stage",1) #calc q and rpos of nodes
                     self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
                     if self.space.t%(int(self.space.NEARDIST/2.0))==0 or self.nearflag==True:  #near field calc
+                        self.compute_near()
                         self.nearflag = False
-                        self.compute_shader.setInt("stage",2)   #calc near atoms  and far field
-                        self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
-                        #self.compute_shader.setInt("stage",4)   # bonded state
-                        #self.compute_shader.run(int(len(self.space.atoms)/self.LOCALSIZEX)+1,1,1)        
+                        self.compute_shader.use()                        
 
-                    #self.compute_shader.setInt("stage",4) #bond state
-                    #self.compute_shader.run(int(len(self.space.atoms)/self.LOCALSIZEX)+1,1,1)      
                     if self.space.redox and self.space.t%300==0:
                         self.rredox_shader.use()
                         glUniform3fv(self.rredox_shader.loc["box"], 1, glm.value_ptr(self.space.box))
