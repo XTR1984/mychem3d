@@ -909,13 +909,7 @@ class MainWindow(QMainWindow):
             sense = 0.01
         offsetx *= sense
         offsety *= sense
-        self.glframe.pitch -=offsety
-        self.glframe.yaw += offsetx
-        if self.glframe.pitch > 89:
-           self.glframe.pitch = 89
-        if self.glframe.pitch < -89:
-           self.glframe.pitch = -89
-        #print(f'yaw={self.glframe.yaw} pitch{self.glframe.pitch} pos={self.glframe.cameraPos}')
+        self.glframe.camera.rotate(offsetx,offsety)
 
 
     def handle_mouse3move(self,event):
@@ -932,9 +926,7 @@ class MainWindow(QMainWindow):
             sense = 0.01
         offsetx *= sense
         offsety *= sense
-        
-        self.glframe.cameraPos -= glm.normalize(glm.cross(self.glframe.cameraFront, self.glframe.cameraUp)) * offsetx*0.05
-        self.glframe.cameraPos += self.glframe.cameraUp * offsety*0.05
+        self.glframe.camera.move(offsetx, offsety)
 
 
 
@@ -982,14 +974,7 @@ class MainWindow(QMainWindow):
                     self.unselect()
             self.show_selected_q()
          else:
-            if shift:
-                cameraSpeed = 0.01
-            else:
-                cameraSpeed = 0.1
-            if delta>0:
-                self.glframe.cameraPos += cameraSpeed * self.glframe.cameraFront
-            else:
-                self.glframe.cameraPos -= cameraSpeed * self.glframe.cameraFront   
+            self.glframe.camera.go(delta, shift)
 
            
 

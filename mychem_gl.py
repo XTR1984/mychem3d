@@ -24,6 +24,7 @@ from PyQt5.QtCore import QTimer
 #from OpenGL.GL import *
 from shader import Shader,ComputeShader
 from buffer import Buffer
+from camera import Camera
 
 class GLWidget(QOpenGLWidget):
     def __init__(self,space):
@@ -32,6 +33,7 @@ class GLWidget(QOpenGLWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update)
         self.timer.start(10)
+        self.camera = Camera()
 
     def initializeGL(self):
         """Initalize gl states when the frame is created"""
@@ -107,26 +109,19 @@ class GLWidget(QOpenGLWidget):
         self.rredox_shader.init_uniforms(['box'])
         self.near_shader.init_uniforms(["N","box", "CHARGE_KOEFF", "NEARDIST"])
 
-        self.cameraUp = glm.vec3(0,1,0)
-        self.cameraFront = glm.vec3(0.5,0.5,-1)
-        self.cameraPos = glm.vec3(0.5,0.5,2)
+        self.camera.pos = glm.vec3(0.5,0.5,2)
         self.cubemap_cameraPos = glm.vec3(1.0,0.5,1.0)        
-        self.cameraTarget = glm.vec3(0.5,0.5,0.5)
+
+
         self.lightPos = glm.vec3(1.0,0.5,1.0)
 
-        #self.cameraDirection = glm.normalize(self.cameraPos - self.cameraTarget)
         self.keypressed = []
         self.lastframe_time= time.time()
         self.lastX = 500
         self.lastY = 300
-        self.yaw = -90
-        self.pitch = 0 
-        self.fov = 45
         self.factor = 0.001
         self.curpos = glm.vec3(0.,0.,0.)
-        #np.array(make_cube2(), dtype=np.float32)
-        #cameraRight = glm.normalize(glm.cross(up, cameraDirection))
-        #cameraUp = glm.cross(cameraDirection, cameraRight)
+
         self.create_objects()
         if self.space.recording3D:
             self.setup_framebuffer()
@@ -408,8 +403,8 @@ class GLWidget(QOpenGLWidget):
     def render(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
         self.shader.use()
-        self.shader.setMatrix4("view", self.view)
-        self.shader.setMatrix4("projection", self.projection)
+        self.shader.setMatrix4("view", self.camera.view)
+        self.shader.setMatrix4("projection", self.camera.projection)
         self.shader.set3f("lightPos", self.lightPos.x, self.lightPos.y, self.lightPos.z)
         self.shader.setFloat("nicefactor", self.nicefactor);
 
@@ -638,20 +633,11 @@ class GLWidget(QOpenGLWidget):
         """Render a single frame"""
         #glClear(GL_COLOR_BUFFER_BIT)
         self.space.N = len(self.space.atoms)
-        front = ( cos(glm.radians(self.pitch))*cos(glm.radians(self.yaw)),
-                 sin(glm.radians(self.pitch)),
-                 cos(glm.radians(self.pitch))*sin(glm.radians(self.yaw)),
-                )
-        self.cameraFront = glm.normalize(front)
-        self.view = glm.lookAt(self.cameraPos, self.cameraPos + self.cameraFront, self.cameraUp)
-        self.lightPos = glm.vec3(self.cameraPos.x+self.view[0,0]+self.view[0,1],
-                                            self.cameraPos.y+self.view[1,0]+self.view[1,1],
-                                            self.cameraPos.z+self.view[2,0]+self.view[2,1])
-        a = self.width()
-        b=  self.height()
-        self.projection = glm.perspective(glm.radians(self.fov), a/b, 0.01,20.0)
 
-        #glBindFramebuffer(GL_FRAMEBUFFER, None)
+        self.camera.update(self.width(),self.height())
+        v = self.camera.view
+        self.lightPos = self.camera.pos + glm.vec3(v[0,0]+v[0,1], v[1,0]+v[1,1], v[2,0]+v[2,1])
+
         glViewport(0, 0, self.width(), self.height())
         self.render()
         self.compute()
@@ -681,12 +667,12 @@ class GLWidget(QOpenGLWidget):
                 ]                
                 glBindFramebuffer(GL_FRAMEBUFFER, self.framebuffer)
                 glViewport(0, 0, self.CUBESIZE, self.CUBESIZE)
-                self.projection = glm.perspective(glm.radians(90.0), 1.0, 0.001, 100.0)
+                self.camera.projection = glm.perspective(glm.radians(90.0), 1.0, 0.001, 100.0)
                 self.lightPos = glm.vec3(self.cubemap_cameraPos.x, self.cubemap_cameraPos.y, self.cubemap_cameraPos.z)
                 self.lightPos.y -=0.5
                 self.lightPos.x -=0.2
                 for i, (direction, up) in enumerate(directions):
-                    self.view = glm.lookAt(self.cubemap_cameraPos, self.cubemap_cameraPos + direction, up)
+                    self.camera.view = glm.lookAt(self.cubemap_cameraPos, self.cubemap_cameraPos + direction, up)
                     self.render()
                     pix[i] = glReadPixels(0,0,self.CUBESIZE, self.CUBESIZE,GL_RGB,GL_UNSIGNED_BYTE)
                 #dirs = ['right', 'left', 'bottom', 'top', 'front', 'back']
