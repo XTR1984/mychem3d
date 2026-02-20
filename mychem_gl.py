@@ -74,10 +74,13 @@ class GLWidget(QOpenGLWidget):
         params = {"LOCALSIZEX":str(self.LOCALSIZEX)}
         self.select_shader = ComputeShader("select.glsl", params)
 
+        params = {"LOCALSIZEX":str(self.LOCALSIZEX)}
+        self.rredox_shader = ComputeShader("rredox.glsl", params)
+
+
         #init uniforms     
         self.compute_shader.init_uniforms(["N","stage", "box", "iTime",
-                                                "bondlock", "gravity", "redox",
-                                                "shake", "TDELTA", "BOND_KOEFF",
+                                                "bondlock", "gravity",                                                "shake", "TDELTA", "BOND_KOEFF",
                                                 "CHARGE_KOEFF", "SPIN_KOEFF", "REPULSION_SIGMA", "REPULSION_POW","REPULSION_EPS",
                                                 "ATTRACTION_KOEFF",  "ROTA_KOEFF", "MASS_KOEFF",
                                                 "FIELD_KOEFF",  "NEARDIST", "NODEDIST", "HEAT",
@@ -89,7 +92,7 @@ class GLWidget(QOpenGLWidget):
                                       ])
             
         self.select_shader.init_uniforms(["shift", "select_param"])
-
+        self.rredox_shader.init_uniforms(['box'])
 
         self.cameraUp = glm.vec3(0,1,0)
         self.cameraFront = glm.vec3(0.5,0.5,-1)
@@ -534,7 +537,6 @@ class GLWidget(QOpenGLWidget):
             s.setInt("iTime", self.space.t )
             s.setFloat("TDELTA", self.space.TDELTA )
             s.setInt("gravity",self.space.gravity)
-            s.setInt("redox",self.space.redox)
             s.setInt("shake",self.space.shake)
             s.setFloat("BOND_KOEFF",self.space.BOND_KOEFF)
             s.setFloat("CHARGE_KOEFF",self.space.CHARGE_KOEFF)
@@ -579,7 +581,12 @@ class GLWidget(QOpenGLWidget):
                         #self.compute_shader.run(int(len(self.space.atoms)/self.LOCALSIZEX)+1,1,1)        
 
                     #self.compute_shader.setInt("stage",4) #bond state
-                    #self.compute_shader.run(int(len(self.space.atoms)/self.LOCALSIZEX)+1,1,1)        
+                    #self.compute_shader.run(int(len(self.space.atoms)/self.LOCALSIZEX)+1,1,1)      
+                    if self.space.redox and self.space.t%300==0:
+                        self.rredox_shader.use()
+                        glUniform3fv(self.rredox_shader.loc["box"], 1, glm.value_ptr(self.space.box))
+                        self.rredox_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
+                        self.compute_shader.use()
 
                     self.compute_shader.setInt("stage",5)  #main
                     self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        

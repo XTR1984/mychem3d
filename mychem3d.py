@@ -386,7 +386,6 @@ class MainWindow(QMainWindow):
         else:
             self.space.redox = False
         self.status_bar.set("Two zone redox is "+ OnOff(self.space.redox))
-        self.glframe.update_uniforms = True
 
     def handle_gravity(self,checked):
         if checked:

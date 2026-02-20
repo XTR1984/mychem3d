@@ -9,7 +9,6 @@ uniform vec3 box;
 uniform int iTime;
 uniform int bondlock;
 uniform int gravity;
-uniform int redox;
 uniform int shake;
 uniform int test;
 uniform int efield;
@@ -252,25 +251,6 @@ void main()
     E = vec3(0.0);
     M = vec3(0.0);
     vec4 totalrot = vec4(0.0, 0.0, 0.0, 1.0);
-
-
-    //random redox 
-    if (redox==1){
-            if (pos_i.x<300){
-                if (rand(v_i.xy)>=0.9994) {
-                    atom_i.nodes[0].q = 1;
-                    atom_i.nodes[0].spin = 0;
-                    Static.atoms[i].highlight = 500;                    
-                }
-            }
-            if (pos_i.x>WIDTH-300){
-                if (rand(v_i.xy)>=0.9994) {
-                    atom_i.nodes[0].q = -1;
-                    atom_i.nodes[0].spin = 0;
-                    Static.atoms[i].highlight = 500;
-                }
-            }    
-    }
 
     float bondcheck[5]= {0.0,0.0,0.0,0.0,0.0};
 
