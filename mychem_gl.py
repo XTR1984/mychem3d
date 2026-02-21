@@ -67,35 +67,21 @@ class GLWidget(QOpenGLWidget):
         self.CUBESIZE = 1280
 
         self.shader =  Shader("atom_vertex1.glsl", "atom_frag1.glsl")
+
+        ComputeShader.commonparams = {"LOCALSIZEX":str(self.LOCALSIZEX),"NEARATOMSMAX":str(self.nearatomsmax) }
         
-        params = {"NEARATOMSMAX":str(self.nearatomsmax) ,
-                  "LOCALSIZEX":str(self.LOCALSIZEX),
-                  "MAXVEL":str(self.space.MAXVELOCITY)
+        params = {"MAXVEL":str(self.space.MAXVELOCITY)
                   }
         self.compute_shader = ComputeShader("compute.glsl", params)
 
-        params = {"LOCALSIZEX":str(self.LOCALSIZEX)}
-        self.select_shader = ComputeShader("select.glsl", params)
-
-        params = {"LOCALSIZEX":str(self.LOCALSIZEX)}
-        self.rredox_shader = ComputeShader("rredox.glsl", params)
-
-        params = {"NEARATOMSMAX":str(self.nearatomsmax) ,
-                  "LOCALSIZEX":str(self.LOCALSIZEX),
-                  }
-        self.near_shader = ComputeShader("near.glsl", params)
-
-        params = {"LOCALSIZEX":str(self.LOCALSIZEX)}
-        self.spinset_shader = ComputeShader("spinset.glsl", params)
-
-        params = {"LOCALSIZEX":str(self.LOCALSIZEX),
-                  "NEARATOMSMAX":str(self.nearatomsmax)}
-        self.bonded_shader = ComputeShader("bonded.glsl", params)
+        self.select_shader = ComputeShader("select.glsl")
+        self.rredox_shader = ComputeShader("rredox.glsl")
+        self.near_shader = ComputeShader("near.glsl")
+        self.spinset_shader = ComputeShader("spinset.glsl")
+        self.bonded_shader = ComputeShader("bonded.glsl")
 
         self.camera.pos = glm.vec3(0.5,0.5,2)
         self.cubemap_cameraPos = glm.vec3(1.0,0.5,1.0)        
-
-
         self.lightPos = glm.vec3(1.0,0.5,1.0)
 
         self.keypressed = []

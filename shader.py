@@ -102,9 +102,11 @@ class Shader(CommonShader):
 
 
 class ComputeShader(CommonShader):
+    commonparams = {}
     def __init__(self, source_file, pparams={}):
         self.program = glCreateProgram()
         self.source= self.load_shader_source(source_file)
+        pparams = self.commonparams | pparams 
         for key,value in pparams.items():
                 self.source = self.source.replace(key,value)
         self.compute_shader = OpenGL.GL.shaders.compileShader(self.source, GL_COMPUTE_SHADER)
