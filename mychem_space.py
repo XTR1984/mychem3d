@@ -54,6 +54,7 @@ class Space:
         self.gravity = False
         self.shake= False
         self.SHAKE_KOEFF = 0.5
+        self.stickybox = 0.0
         self.redox = False
         self.redox_rate = 1
         self.bondlock =False

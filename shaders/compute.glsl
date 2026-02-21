@@ -32,6 +32,7 @@ uniform float MASS_KOEFF;
 uniform float NEARDIST;
 uniform float NODEDIST;
 uniform float HEAT;
+uniform float stickybox;
 float WIDTH = box.x;
 float HEIGHT = box.y;
 float DEPTH = box.z;
@@ -106,7 +107,23 @@ vec3 rotate_vector(vec3 v, vec4 r)
          return qmul(r, qmul(vec4(v, 0), r_c)).xyz;
 }
 
+
+vec4 getWall(vec3 pos, vec3 bounds) {
+    vec3 toMin = pos;
+    vec3 toMax = bounds - pos;
+    vec3 d = min(toMin, toMax);
+    float md = min(d.x, min(d.y, d.z));
+    return vec4(sign(toMax - toMin) * step(d, vec3(md)), md);
+}
+
 void limits(inout vec3 pos,  inout vec3 v, in float radius){
+
+    if (stickybox>0.0){
+        vec4 wall = getWall(pos,box);
+        if (wall.w<10){
+            v+= -0.001 * stickybox * wall.xyz;
+        };
+    }
     vec3 outlim;
     outlim = pos - box;
     outlim = clamp(outlim,vec3(0.0),vec3(100.0));
@@ -372,6 +389,9 @@ void main()
 //shake
    if (shake==1) v_i+= vec3(rand(pos_i.xy)-0.499,rand(pos_i.yz)-0.499,rand(pos_i.xz)-0.499)*0.05;
 
+//sticky walls
+
+
 // far field
    F += Far.F[i].xyz;
 
@@ -407,6 +427,8 @@ void main()
     
 //limits    
     limits(pos_i,v_i,atom_iS.r); //borders of container
+
+
  
     atom_i.v.xyz = v_i;
     atom_i.pos.xyz = pos_i;

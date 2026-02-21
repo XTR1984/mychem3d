@@ -537,6 +537,8 @@ class GLWidget(QOpenGLWidget):
             s.setFloat("FIELD_KOEFF",self.space.FIELD_KOEFF)
             s.setFloat("NODEDIST",self.space.NODEDIST)
             s.setFloat("HEAT",float(self.space.heat))
+            s.setFloat("stickybox",float(self.space.stickybox))
+
             s.setInt("sideheat",self.space.sideheat)
             s.setInt("efield",self.space.efield)
             s.setInt("test",self.space.test)

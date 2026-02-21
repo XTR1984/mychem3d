@@ -1079,6 +1079,7 @@ class OptionsFrame(QDialog):
         self.create_slider("Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
         self.create_slider("Mass koeff", 1, 50, self.space.MASS_KOEFF, self.set_massk)
         self.create_slider("E-Field koeff", 1, 100, self.space.FIELD_KOEFF, self.set_fieldk)
+        self.create_slider("Stickybox", 0, 100, self.space.stickybox, self.set_stickybox)
         self.create_slider("Select expand param", 20, 500, self.space.select_param, self.set_selectparam)
         self.sizex = self.create_slider("Container size X", 1, 50, int(self.space.WIDTH / 100), self.set_size)
         self.sizey = self.create_slider("Container size Y", 1, 50, int(self.space.HEIGHT / 100), self.set_size)
@@ -1155,6 +1156,10 @@ class OptionsFrame(QDialog):
 
     def set_spink(self, value):
         self.space.SPIN_KOEFF = float(value)
+        self.glframe.update_uniforms = True
+
+    def set_stickybox(self, value):
+        self.space.stickybox = float(value)
         self.glframe.update_uniforms = True
 
 
