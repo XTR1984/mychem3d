@@ -127,6 +127,11 @@ class Space:
               a.pos = a.pos +  origin
               a.rot = rot * a.rot
         
+    def copy_atoms(self,atoms):
+        newatoms = []
+        for a in atoms:
+            newatoms.append(a.copy())
+        return newatoms
 
 
     def selected2merge(self,duble=False):

@@ -33,7 +33,7 @@ class mychemApp(QApplication):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self,app,space):
+    def __init__(self,app,space:Space):
         super(MainWindow, self).__init__()
         self.app = app
         self.space = space
@@ -101,7 +101,7 @@ class MainWindow(QMainWindow):
         #self.glframe.bind("<MouseWheel>", self.handle_scroll)
         self.space.glframe = self.glframe
         print("glframe created")
-        self.recentdata = None
+        self.recentdata = []
         self.merge_mode = False
         self.ttype = "mx"
         self.heat = QSlider()
@@ -465,9 +465,9 @@ class MainWindow(QMainWindow):
         f =  open(fileName,"r")		
         self.space.merge_atoms = []
         mergedata = json.loads(f.read())
-        self.recentdata = mergedata
         r = self.space.load_data(mergedata, merge=True)
         self.space.move_atoms(self.space.merge_atoms,(self.space.box/2-self.space.get_mergeobject_center()))
+        self.recentdata = self.space.copy_atoms(self.space.merge_atoms)
         self.mergemode()
                               
 
@@ -497,13 +497,13 @@ class MainWindow(QMainWindow):
 #        try:
         result = load_sdf(f,self.space.merge_atoms)
         f.close()
-        mergedata = self.space.make_export(self.space.merge_atoms)
+#        mergedata = self.space.make_export(self.space.merge_atoms)
 #        except Exception as e:
 #            print(e)
 #            print("Fail to load sdf")
 
 
-        self.recentdata = mergedata
+        self.recentdata = self.space.copy_atoms(self.space.merge_atoms)
         self.mergemode()
         self.space.atoms2compute()
         self.glframe.calcfirst()            
@@ -520,8 +520,8 @@ class MainWindow(QMainWindow):
             return
         self.sim_pause()
         self.undostack.push(self.space.make_export())
-        self.space.merge_atoms = []
-        self.space.load_data(self.recentdata, merge=True)
+        self.space.merge_atoms = self.space.copy_atoms(self.recentdata)
+        #self.space.load_data(self.recentdata, merge=True)
         #self.space.atoms2compute()
         self.space.merge_pos+=glm.vec3(20,0,0)    
         self.space.move_atoms(self.space.merge_atoms,(self.space.box/2-self.space.get_mergeobject_center()))
@@ -534,20 +534,17 @@ class MainWindow(QMainWindow):
             return
         self.sim_pause()
         self.undostack.push(self.space.make_export())
-        self.space.load_data(self.recentdata, merge=True)
+        self.merge_atoms = self.space.copy_atoms(self.recentdata)
         self.unselect()
         #(center,distant) = self.space.get_atoms_distant(self.space.merge_atoms)
         number, ok = QInputDialog.getInt(None, "Input number", "How many?")        
         if not ok :
             return
         for i in range(0,number):
-            self.space.merge_atoms = []
-            #distant = glm.round(distant)
             x= random.randint(0,self.space.WIDTH)
             y= random.randint(0,self.space.HEIGHT)
             z= random.randint(0,self.space.DEPTH)
-            self.space.load_data(self.recentdata, merge=True)
-            ##self.space.move_atoms(self.space.merge_atoms,(self.space.box/2-self.space.get_mergeobject_center()))
+            self.space.merge_atoms = self.space.copy_atoms(self.recentdata)
             self.space.move_atoms(self.space.merge_atoms, glm.vec3(x,y,z)-self.space.get_mergeobject_center())
             f = random.random()*3.1415
             rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
@@ -616,6 +613,7 @@ class MainWindow(QMainWindow):
         if self.space.select_mode:
             self.undostack.push(self.space.make_export())
             self.space.selected2merge(duble=True)
+            self.recentdata = self.space.copy_atoms(self.space.merge_atoms)
             self.space.move_atoms(self.space.merge_atoms, glm.vec3(30,0,0))
             self.mergemode()
             
