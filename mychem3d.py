@@ -218,8 +218,9 @@ class MainWindow(QMainWindow):
         self.status_bar.set('heat = ' + str(value))
         self.glframe.update_uniforms = True
 
-    def handle_test(self,checked):
+    def handle_test(self,checked=None):
         self.space.test = not self.space.test
+        self.status_bar.set("Test var is "+ OnOff(self.space.test))          
         self.glframe.update_uniforms = True            
 
     def handle_efield(self,checked):
