@@ -22,9 +22,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, \
 from PyQt5.QtCore import Qt
 
 class mychemApp(QApplication):
-    def __init__(self,a=[]):
+    def __init__(self,a=[],maxatoms=50000):
         super().__init__(a)
-        self.space = Space()
+        self.space = Space(maxatoms)
 
     def run(self, pause=True):
         self.root = MainWindow(self, self.space)
