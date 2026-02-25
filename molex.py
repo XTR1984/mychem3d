@@ -1,7 +1,7 @@
-from mychem_atom import Atom
-from mychem_space import Space
+from atom import Atom
+from space import Space
 import glm
-from mychem_functions import bond_atoms
+from functions import bond_atoms
 from math import acos,cos,sin,pi
 from itertools import permutations
 

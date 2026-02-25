@@ -3,7 +3,7 @@ from re import S
 import sys, os
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from mychem3d import mychemApp, Atom,Space
-from mychem_functions import bond_atoms
+from functions import bond_atoms
 from math import pi 
 from math import *
 import glm

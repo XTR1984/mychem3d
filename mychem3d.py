@@ -5,10 +5,10 @@ import os, sys
 import json
 from json import encoder
 from PIL import ImageGrab
-from mychem_atom import Atom
-from mychem_space import Space
-from mychem_gl import GLWidget
-from mychem_functions import OnOff,UndoStack,bond_atoms,double_info
+from atom import Atom
+from space import Space
+from glframe import GLWidget
+from functions import OnOff,UndoStack,bond_atoms,double_info
 import glm
 import random
 import OpenGL.GL as gl

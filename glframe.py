@@ -11,9 +11,9 @@ import random
 from PIL import Image,ImageDraw
 from math import sin,cos,sqrt,pi
 import time
-from mychem_functions import make_sphere_vert,make_cube2,print_bytes_with_highlights
-from mychem_data import cube_vertices
-from mychem_atom import Node,AtomC,AtomCS, NodeC,NodeCS
+from functions import make_sphere_vert,make_cube2,print_bytes_with_highlights
+from data import cube_vertices
+from atom import Node,AtomC,AtomCS, NodeC,NodeCS
 from array import array
 from mesh import Mesh
 import threading

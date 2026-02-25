@@ -36,7 +36,7 @@ def make_sphere_vert(radius, segments):
 
 
 
-from mychem_data import cube2_surfaces, cube2_vertices
+from data import cube2_surfaces, cube2_vertices
 def make_cube2():
      vertices = []
      for s in cube2_surfaces:

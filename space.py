@@ -3,7 +3,7 @@ import json
 from math import sqrt,sin,cos,pi,acos
 import numpy as np
 import random
-from mychem_atom import Atom
+from atom import Atom
 import glm
 import time
 
