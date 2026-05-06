@@ -39,7 +39,7 @@ void main()
     AtomD atom_i = In.atoms[i];
     AtomS atom_iS = Static.atoms[i]; 
     vec3 pos_i= atom_i.pos.xyz;
-
+    bool stype = Static.atoms[i].ncount==1;
  // bonded state set
     for (int ni = 0; ni<atom_iS.ncount; ni++ ) {
         vec3 ni_realpos = rpos[i][ni].xyz;
@@ -57,7 +57,18 @@ void main()
             for (int nj = 0; nj<atom_jS.ncount; nj++){
                 float nj_type = atom_j.nodes[nj].type;
                 vec3 nj_realpos = rpos[j][nj].xyz;
+                bool stype_j = atom_jS.ncount==1;
                 //if (nj_type>1) continue;
+                if (stype){
+                        vec3 hdelta = -delta + nj_realpos; 
+                        ni_realpos = normalize(hdelta)*atom_iS.r;
+                }
+
+                if (stype_j){
+                        vec3 hdelta = delta + ni_realpos; 
+                        nj_realpos = normalize(hdelta)*atom_jS.r;
+                }
+
                 float rn = distance(pos_i + ni_realpos, pos_j + nj_realpos);
                 
                 if (rn<=BONDR){

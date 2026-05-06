@@ -137,11 +137,13 @@ int i = int(gl_GlobalInvocationID);
 
 void main()
 {
+    bool stype = Static.atoms[i].ncount==1;
     if (stage==1){  //calc atom q and rpos of nodes
        //In.atoms[i].q=0;
        float q = 0; 
        for (int ni = 0; ni<Static.atoms[i].ncount; ni++ ) {
-                rpos[i][ni].xyz = rotate_vector(Static.atoms[i].nodes[ni].pos.xyz, In.atoms[i].rot);
+                //if (!stype)
+                    rpos[i][ni].xyz = rotate_vector(Static.atoms[i].nodes[ni].pos.xyz, In.atoms[i].rot);
                 q += qshift_buffer[i][ni]; 
                 if (In.atoms[i].nodes[ni].type == 2.0 ) { 
                     q +=  1;
@@ -196,6 +198,7 @@ void main()
                 f3 = REPULSION_EPS* pow(sgm/r,REPULSION_POW);
                 F += delta/r*f3; 
 
+
             //nodes
             for (int ni = 0; ni<atom_iS.ncount; ni++ ) {
                 vec3 ni_realpos = rpos[i][ni].xyz;
@@ -211,12 +214,27 @@ void main()
                     float nj_bonded = atom_j.nodes[nj].bonded;
                     float nj_q=atom_j.nodes[nj].q;
                     float nj_spin=atom_j.nodes[nj].spin;
+                    bool stype_j = atom_jS.ncount==1;
 
                     f4 = 0, f5=0;
                     //node interact
                     float rn,rn2;
                     vec3 ndelta,force_dir;
-                    
+
+                    /*if (stype){
+                        vec3 hdelta = -delta + nj_realpos; 
+                        ni_realpos = normalize(hdelta)*atom_iS.r;
+                    }
+
+                    if (stype_j){
+                        vec3 hdelta = delta + ni_realpos; 
+                        nj_realpos = normalize(hdelta)*atom_jS.r;
+                        //rpos[nj][nj].xyz = nj_realpos;
+                    }*/
+
+
+                    //   rpos[i][ni].xyz = rotate_vector(Static.atoms[i].nodes[ni].pos.xyz, In.atoms[i].rot);
+
 
                     ndelta =  ni_realpos - nj_realpos + delta;
     
@@ -229,10 +247,15 @@ void main()
                         force_dir = normalize(ndelta);
                     }
 
+
                     float edelta = tbl_elneg[int(atom_jS.type)] - tbl_elneg[int(atom_iS.type)];
-                    
+
+                    bool spinok = ni_spin + nj_spin==0 && ni_q + nj_q == 0;
+
                     if (rn<=BONDR  ){
-                        bool spinok = ni_spin + nj_spin==0 && ni_q + nj_q == 0;
+
+                        //if(stype) rpos[i][ni].xyz = ni_realpos;
+
                         if (ni_bonded == 0.0 && nj_bonded == 0.0) {
                             if (spinok){
                                 bondcheck[ni]=1.0;
@@ -251,20 +274,13 @@ void main()
                             f4 = f;
                             f5 = f;
                         }
-                        else {
-                            //float f= abs(edelta) * ni_spin * nj_spin * CHARGE_KOEFF/rn/rn;
-                            f4 = 500*exp(-rn); // pauli!
-                            f5 = f4*0.01;
-                            //f4=f;
-                            //f5=f;
-                            //atom_iS.highlight = 50;
-                        }
                     }
 
                     else {
                     
-                        /*if (rn < BONDR*1.5  ){
-                            float f= abs(edelta) * ni_spin * nj_spin * CHARGE_KOEFF/rn/rn;
+                        //if (rn < BONDR*1.5  ){
+                        /*if( r<=sumradius && stype && nj_type!=2){
+                            float f= abs(edelta) * ni_spin * nj_spin * SPIN_KOEFF/rn/rn;
                             f4+=f;
                             f5+=f;
                         }*/
@@ -285,6 +301,12 @@ void main()
                         
                     }
                     
+                    if (!spinok) {                    
+                            f4+= 5*exp(-rn); // pauli!
+                            f5+= f4;
+                            //Static.atoms[i].highlight =50;
+                    }
+
                     //hydrogen bond, node to atom
                     /*if (ni_bonded==0.0 && atom_jS.type==1.0 && nj_bonded==1.0){
                                 vec3 cdelta = ni_realpos + delta;

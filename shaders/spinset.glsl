@@ -65,6 +65,7 @@ void main()
                     float rn = distance(pos_i + ni_realpos, pos_j + nj_realpos);
                     if (rn<BONDR){
                         In.atoms[i].nodes[ni].bonded=1.0;
+                    
                         if (atom_j.nodes[nj].spin !=0){
                             In.atoms[i].nodes[ni].spin = - atom_j.nodes[nj].spin;
                         }
