@@ -19,13 +19,14 @@ uniform int sideheat;
 //uniform float frame_time;
 uniform float TDELTA;
 uniform float BOND_KOEFF;
-uniform float ATTRACTION_KOEFF;
+uniform float ATTRACTION_POW;
+uniform float ATTRACTION_EPS;
 uniform float CHARGE_KOEFF;
 uniform float SPIN_KOEFF;
 uniform float FIELD_KOEFF;
 uniform float ROTA_KOEFF;
 uniform float CONUS_KOEFF = 0.866;
-uniform float REPULSION_SIGMA;
+uniform float SIGMA;
 uniform float REPULSION_POW;
 uniform float REPULSION_EPS;
 uniform float MASS_KOEFF;
@@ -189,12 +190,12 @@ void main()
             E += delta/r * e;
             //}
             
-            
-            f2 = -ATTRACTION_KOEFF*0.01/r/r;
+            float sgm = sumradius+SIGMA;
+           
+            f2 = -ATTRACTION_EPS*pow(sgm/r, ATTRACTION_POW);
             F += delta/r*f2; 
 
             if (r<NODEDIST) {
-                float sgm = sumradius+REPULSION_SIGMA;
                 f3 = REPULSION_EPS* pow(sgm/r,REPULSION_POW);
                 F += delta/r*f3; 
 

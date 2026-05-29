@@ -121,7 +121,7 @@ def double_info(a1, a2,space):
     r = glm.length(delta)
     FK = space.CHARGE_KOEFF*a1.q * a2.q/glm.length2(delta)
     sumradius = a1.r + a2.r
-    sgm = sumradius+space.REPULSION_SIGMA; 
+    sgm = sumradius+space.SIGMA; 
     FR = space.REPULSION_EPS*pow(sgm/r,space.REPULSION_POW);    
     F = FK+FR
     print(f"FK={FK:.3f}  FR={FR:.3f} F={F:.3f}")

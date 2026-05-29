@@ -29,10 +29,11 @@ class OptionsFrame(QDialog):
         self.create_slider("Update delta", 1, 150, self.space.update_delta, self.set_delta)
         self.create_slider("Charge koeff", 0, 5000, int(self.space.CHARGE_KOEFF), self.set_chargek)
         self.create_slider("Spin koeff", 0, 200, int(self.space.SPIN_KOEFF), self.set_spink)
-        self.create_slider("Repulsion sigma", -15, 50, int(self.space.REPULSION_SIGMA), self.set_repulsek1)
+        self.create_slider("Sigma", -15, 50, int(self.space.SIGMA), self.set_sigma)
         self.create_slider("Repulsion power", 1, 15, int(self.space.REPULSION_POW), self.set_repulsek2)
         self.create_slider("Repulsion eps", 1, 300, int(self.space.REPULSION_EPS*100), self.set_repulsek3)
-        self.create_slider("Attracion koeff", 0, 200, int(self.space.ATTRACTION_KOEFF), self.set_attraction)
+        self.create_slider("Attracion eps", 0, 200, int(self.space.ATTRACTION_EPS*100), self.set_attraction_eps)
+        self.create_slider("Attracion power", 1, 15, int(self.space.ATTRACTION_POW), self.set_attraction_pow)
         self.create_slider("Bond koeff", 0, 500, self.space.BOND_KOEFF, self.set_bondk)
         self.create_slider("Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
         self.create_slider("Mass koeff", 1, 50, self.space.MASS_KOEFF, self.set_massk)
@@ -121,8 +122,8 @@ class OptionsFrame(QDialog):
         self.glframe.update_uniforms = True
 
 
-    def set_repulsek1(self, value):
-        self.space.REPULSION_SIGMA = float(value)
+    def set_sigma(self, value):
+        self.space.SIGMA = float(value)
         self.glframe.update_uniforms = True
 
     def set_repulsek2(self, value):
@@ -134,9 +135,14 @@ class OptionsFrame(QDialog):
         self.glframe.update_uniforms = True
 
 
-    def set_attraction(self, value):
-        self.space.ATTRACTION_KOEFF = float(value)
+    def set_attraction_eps(self, value):
+        self.space.ATTRACTION_EPS = float(value)*0.01
         self.glframe.update_uniforms = True
+
+    def set_attraction_pow(self, value):
+        self.space.ATTRACTION_POW = float(value)
+        self.glframe.update_uniforms = True
+
 
     def set_bondk(self, value):
         self.space.BOND_KOEFF = float(value)

@@ -38,7 +38,7 @@ if __name__ == '__main__':
      #space.recording = True
     #space.INTERACT_KOEFF = 5.0
     #space.REPULSION_KOEFF2=50
-    space.REPULSION_SIGMA=0
+    space.SIGMA=0
     space.BOND_KOEFF = 100
 #    space.MASS_KOEFF = 5
     space.appendmixer(1)
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     space.NODEDIST = 40
     space.NEARDIST = 200
     space.pause = True
-    space.highlight_unbond=True
+    #space.highlight_unbond=True
     App.run()
 #
 #
