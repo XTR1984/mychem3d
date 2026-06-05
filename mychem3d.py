@@ -1028,7 +1028,13 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 #sys.excepthook = handle_exception
 
 
+
 if __name__ == '__main__':
+    from PyQt5.QtCore import QT_VERSION_STR, PYQT_VERSION_STR
+    from PyQt5.Qt import PYQT_VERSION_STR as PYQT5_VERSION_STR
+
+    print("Qt ver:", QT_VERSION_STR)
+    print("PyQt5 ver:", PYQT_VERSION_STR)    
     a = mychemApp()
     time.sleep(1)
     a.run()
