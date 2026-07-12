@@ -54,6 +54,7 @@ class Space:
         self.selected_atoms = [] 
         self.select_param = 40
         self.gravity = False
+        self.GRAVITY_K = 0.0001
         self.shake= False
         self.SHAKE_KOEFF = 0.5
         self.stickybox = 0.0

@@ -522,6 +522,7 @@ class GLWidget(QOpenGLWidget):
             s.setFloat("ROTA_KOEFF",self.space.ROTA_KOEFF)
             s.setFloat("MASS_KOEFF",self.space.MASS_KOEFF)
             s.setFloat("FIELD_KOEFF",self.space.FIELD_KOEFF)
+            s.setFloat("GRAVITY_K",self.space.GRAVITY_K)
             s.setFloat("NODEDIST",self.space.NODEDIST)
             s.setFloat("HEAT",float(self.space.heat))
             s.setFloat("stickybox",float(self.space.stickybox))

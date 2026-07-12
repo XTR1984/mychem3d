@@ -34,6 +34,7 @@ uniform float NEARDIST;
 uniform float NODEDIST;
 uniform float HEAT;
 uniform float stickybox;
+uniform float GRAVITY_K;  
 float WIDTH = box.x;
 float HEIGHT = box.y;
 float DEPTH = box.z;
@@ -401,19 +402,11 @@ void main()
    }
    else v_i +=  v_i * HEAT*0.0001;      
    
- 
-
- //gravity
-   if (gravity==1) v_i.y -= 0.0001; //gravity
-
-   //if (pos_i.y < 30) v_i.y += 0.1;
-     
+//gravity
+   if (gravity==1) v_i.y -= GRAVITY_K; 
      
 //shake
    if (shake==1) v_i+= vec3(rand(pos_i.xy)-0.499,rand(pos_i.yz)-0.499,rand(pos_i.xz)-0.499)*0.05;
-
-//sticky walls
-
 
 // far field
    F += Far.F[i].xyz;
@@ -434,7 +427,7 @@ void main()
     //v_i = clamp(v_i , vec3(-MAXVEL,-MAXVEL,-MAXVEL), vec3(MAXVEL,MAXVEL,MAXVEL));
     float vl = length(v_i);
     if (vl>MAXVEL){
-        //atom_i.color = vec4(0,0,0,1);
+//        atom_iS.color = vec4(0,0,0,1);
         v_i = v_i/vl*MAXVEL;
     }
 

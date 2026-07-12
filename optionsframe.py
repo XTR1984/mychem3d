@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, \
                             QScrollArea
 
 from PyQt5.QtCore import Qt
-
+from math import log10
 
 class OptionsFrame(QDialog):
     def __init__(self, app):
@@ -32,12 +32,13 @@ class OptionsFrame(QDialog):
         self.create_slider("Sigma", -15, 50, int(self.space.SIGMA), self.set_sigma)
         self.create_slider("Repulsion power", 1, 15, int(self.space.REPULSION_POW), self.set_repulsek2)
         self.create_slider("Repulsion eps", 1, 300, int(self.space.REPULSION_EPS*100), self.set_repulsek3)
-        self.create_slider("Attracion eps", 0, 200, int(self.space.ATTRACTION_EPS*100), self.set_attraction_eps)
-        self.create_slider("Attracion power", 1, 15, int(self.space.ATTRACTION_POW), self.set_attraction_pow)
+        self.create_slider("Attraction eps", 0, 200, int(self.space.ATTRACTION_EPS*100), self.set_attraction_eps)
+        self.create_slider("Attraction power", 1, 15, int(self.space.ATTRACTION_POW), self.set_attraction_pow)
         self.create_slider("Bond koeff", 0, 500, self.space.BOND_KOEFF, self.set_bondk)
         self.create_slider("Rotation koeff", 1, 200, int(self.space.ROTA_KOEFF), self.set_rotk)
         self.create_slider("Mass koeff", 1, 50, self.space.MASS_KOEFF, self.set_massk)
         self.create_slider("E-Field koeff", 1, 100, self.space.FIELD_KOEFF, self.set_fieldk)
+        self.create_slider("Gravity koeff",-6, -1, log10(self.space.GRAVITY_K), self.set_gravityk)
         self.create_slider("Stickybox", 0, 100, self.space.stickybox, self.set_stickybox)
         self.create_slider("Select expand param", 20, 500, self.space.select_param, self.set_selectparam)
         self.create_slider("Neardist", 100, 2000, self.space.NEARDIST, self.set_neardist)
@@ -175,6 +176,12 @@ class OptionsFrame(QDialog):
     def set_fieldk(self, value):
         self.space.FIELD_KOEFF = float(value)
         self.glframe.update_uniforms = True
+
+    def set_gravityk(self, value):
+        self.space.GRAVITY_K = pow(10,value)
+        print(self.space.GRAVITY_K)
+        self.glframe.update_uniforms = True
+
 
     def set_sideheat(self,checked):
         if checked:
