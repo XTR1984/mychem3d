@@ -18,8 +18,8 @@ class Space:
         self.efield = False
         self.TDELTA = 1.0
         self.BOND_KOEFF = 200
-        self.BONDR = 4.0
-        self.CHARGE_KOEFF= 500.0
+        self.BONDR = 2.0
+        self.CHARGE_KOEFF= 1000.0
         self.SPIN_KOEFF= 30.0
         self.FIELD_KOEFF= 1.0
         self.ROTA_KOEFF = 10.0
@@ -27,13 +27,14 @@ class Space:
         self.SIGMA = 3
         self.REPULSION2 = 6
         self.REPULSION_POW= 9
-        self.REPULSION_EPS= 0.5
+        self.REPULSION_EPS= 0.3
         self.ATTRACTION_EPS = 0.2
         self.ATTRACTION_POW = 6
         self.MASS_KOEFF = 1.0
         self.MAXVELOCITY = 1
         self.NEARDIST = 200.0   # near atoms buffering
         self.NODEDIST = 60
+        self.NEARTIME = self.NEARDIST*0.5
         self.heat = 0
         self.t = -1
         self.stoptime = -1

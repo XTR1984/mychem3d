@@ -40,6 +40,9 @@ class OptionsFrame(QDialog):
         self.create_slider("E-Field koeff", 1, 100, self.space.FIELD_KOEFF, self.set_fieldk)
         self.create_slider("Stickybox", 0, 100, self.space.stickybox, self.set_stickybox)
         self.create_slider("Select expand param", 20, 500, self.space.select_param, self.set_selectparam)
+        self.create_slider("Neardist", 100, 2000, self.space.NEARDIST, self.set_neardist)
+        self.create_slider("Neartime", 50, 1000, self.space.NEARTIME, self.set_neartime)
+        self.create_slider("Nodedist", 10, 200, self.space.NODEDIST, self.set_nodedist)
         self.sizex = self.create_slider("Container size X", 1, 50, int(self.space.WIDTH / 100), self.set_size)
         self.sizey = self.create_slider("Container size Y", 1, 50, int(self.space.HEIGHT / 100), self.set_size)
         self.sizez = self.create_slider("Container size Z", 1, 50, int(self.space.DEPTH / 100), self.set_size)
@@ -104,6 +107,19 @@ class OptionsFrame(QDialog):
     def set_tdelta(self,value):
         self.space.TDELTA = float(value)
         self.glframe.update_uniforms = True
+
+    def set_nodedist(self,value):
+        self.space.NODEDIST = value
+        self.glframe.update_uniforms = True
+
+    def set_neardist(self,value):
+        self.space.NEARDIST = value
+        self.glframe.update_uniforms = True
+
+    def set_neartime(self,value):
+        self.space.NEARTIME = value
+
+
 
     def set_delta(self, value):
         self.space.update_delta = int(value)

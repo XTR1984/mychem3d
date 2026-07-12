@@ -554,7 +554,7 @@ class GLWidget(QOpenGLWidget):
                     self.space.t+=1
                     self.compute_shader.setInt("stage",1) #calc q and rpos of nodes
                     self.compute_shader.run(int(self.space.N/self.LOCALSIZEX)+1,1,1)        
-                    if self.space.t%(int(self.space.NEARDIST/2.0))==0 or self.nearflag==True:  #near field calc
+                    if self.space.t%(self.space.NEARTIME)==0 or self.nearflag==True:  #near field calc
                         self.compute_near()
                         self.nearflag = False
                         self.compute_shader.use()                        
