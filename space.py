@@ -229,7 +229,41 @@ class Space:
         self.rotate_atoms(self.merge_atoms,glm.vec3(x,y,z), merge_rot)
         first,size = self.merge2atoms()
         return first,size
-    
+
+
+    def get_mindist(self, atoms1):
+        mindist = 100000
+        for ai in atoms1:
+            for aj in self.atoms:
+                r = glm.distance(ai.pos, aj.pos)
+                if r < mindist:
+                    mindist = r
+        return mindist
+
+    def merge_from_file_random(self, filename, count=1, mindistgood=25):
+        for i in range(0,count):
+            f =  open(filename,"r")		
+            self.merge_atoms = []
+            mergedata = json.loads(f.read())
+            r = self.load_data(mergedata, merge=True)
+            c = self.get_mergeobject_center()
+            self.move_atoms(self.merge_atoms,(-c))
+            for t in range(1,100):
+                print('try place ', t)
+                f = random.random()*pi
+                rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
+                x = random.randint(0,self.WIDTH)
+                y = random.randint(0,self.HEIGHT)
+                z = random.randint(0,self.DEPTH)                            
+                self.move_atoms(self.merge_atoms, glm.vec3(x,y,z))
+                self.rotate_atoms(self.merge_atoms,glm.vec3(x,y,z), rot)
+                if mindistgood < self.get_mindist(self.merge_atoms):
+                    first,size = self.merge2atoms()
+                    break
+                self.move_atoms(self.merge_atoms, glm.vec3(-x,-y,-z))
+        
+
+
 
     def make_export(self, atoms=None):
         if atoms==None:

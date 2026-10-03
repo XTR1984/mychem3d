@@ -24,37 +24,12 @@ def action1(space):
             (i1,_)=space.merge_from_file("examples/simple/OH.json",x+dx,y+dz,z+dy,rot)
             space.atoms[i1].nodes[1].q=-1
             space.atoms[i1].nodes[1].spin=0
-#        for i in range(0,20):
-#            f = random.random()*pi
-#            rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-#            dx = random.randint(-400,400)
-            #dy = random.randint(-400,400)
-#            dz = random.randint(-400,400)
-            #i1=space.merge_from_file("examples/simple/OH.json",x+dx,y+dz,z+dy,rot)
-#            a = Atom(x+dx,y+dy,z+dz,1)
-            #a.nodes[0].q=1
-#            space.appendatom(a)
-            
+         
 
 
-        for i in range(0,10):
-            f = random.random()*pi
-            rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-            dx = random.randint(0,space.WIDTH)
-            dy = random.randint(0,space.HEIGHT)
-            dz = random.randint(0,space.DEPTH)
-            i4=space.merge_from_file("examples/aldehyde/acetaldehyde.json",x+dx,y+dy,z+dz,rot)
-            #i4=space.merge_from_file("examples/aminoacids/asparagine.json",x+dx,y+dy,z+dz,rot)
+        space.merge_from_file_random("examples/aminoacids/asparagine.json", 10)
 
-        for i in range(0,300):
-            f = random.random()*pi
-            rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-            dx = random.randint(0,space.WIDTH)
-            dy = random.randint(0,space.HEIGHT)
-            dz = random.randint(0,space.DEPTH)
-            i4=space.merge_from_file("examples/aldehyde/formaldehyde.json",x+dx,y+dy,z+dz,rot)
-            #i4=space.merge_from_file("examples/aminoacids/asparagine.json",x+dx,y+dy,z+dz,rot)
-
+        space.merge_from_file_random("examples/aldehyde/formaldehyde.json",300)
 
         space.atoms2compute()
 
