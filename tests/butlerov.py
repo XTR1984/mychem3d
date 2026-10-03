@@ -27,7 +27,7 @@ def action1(space):
          
 
 
-        space.merge_from_file_random("examples/aminoacids/asparagine.json", 10)
+        space.merge_from_file_random("examples/aldehyde/glycolaldehyde.json", 10)
 
         space.merge_from_file_random("examples/aldehyde/formaldehyde.json",300)
 

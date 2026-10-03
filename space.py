@@ -220,9 +220,9 @@ class Space:
 
 
     def merge_from_file(self, filename, x=0,y=0,z=0, merge_rot=glm.quat()):
-        f =  open(filename,"r")		
         self.merge_atoms = []
-        mergedata = json.loads(f.read())
+        with open(filename,"r") as f:		
+                mergedata = json.loads(f.read())
         r = self.load_data(mergedata, merge=True)
         c = self.get_mergeobject_center()
         self.move_atoms(self.merge_atoms,(-c) + glm.vec3(x,y,z))
@@ -242,14 +242,17 @@ class Space:
 
     def merge_from_file_random(self, filename, count=1, mindistgood=25):
         for i in range(0,count):
-            f =  open(filename,"r")		
             self.merge_atoms = []
-            mergedata = json.loads(f.read())
+            with open(filename,"r") as f:		
+                mergedata = json.loads(f.read())
             r = self.load_data(mergedata, merge=True)
+            self.merge_random(mindistgood)
+
+    def merge_random(self, mindistgood=25, tries=100):
             c = self.get_mergeobject_center()
             self.move_atoms(self.merge_atoms,(-c))
-            for t in range(1,100):
-                print('try place ', t)
+            for t in range(1,tries):
+                #print('try place ', t)
                 f = random.random()*pi
                 rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
                 x = random.randint(0,self.WIDTH)
@@ -257,11 +260,12 @@ class Space:
                 z = random.randint(0,self.DEPTH)                            
                 self.move_atoms(self.merge_atoms, glm.vec3(x,y,z))
                 self.rotate_atoms(self.merge_atoms,glm.vec3(x,y,z), rot)
-                if mindistgood < self.get_mindist(self.merge_atoms):
-                    first,size = self.merge2atoms()
-                    break
+                mindist = self.get_mindist(self.merge_atoms)
+                if mindist > mindistgood:
+                    self.merge2atoms()
+                    return True
                 self.move_atoms(self.merge_atoms, glm.vec3(-x,-y,-z))
-        
+            return False    
 
 
 

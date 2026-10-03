@@ -14,11 +14,6 @@ def action1(space):
     global f
     (x,y,z)=(0,0,0)
     if space.t%150==0:    #OH
-        f = random.random()*pi
-        rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-        x = random.randint(0,space.WIDTH)
-        y = random.randint(0,space.HEIGHT)
-        z = random.randint(0,space.DEPTH)
         (f,s) = space.merge_from_file("examples/simple/NH3.json",100,100,500)
         for i in range(f,f+s):
             space.atoms[i].v = glm.vec3(0.5,0.5,0)
@@ -26,10 +21,6 @@ def action1(space):
         space.glframe.atoms2ssbo(first=f,size=s)
 
 
-
-#            
-# #
-#
 if __name__ == '__main__':
 #
     random.seed(1)

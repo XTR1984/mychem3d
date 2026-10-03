@@ -20,19 +20,10 @@ if __name__ == '__main__':
     App = mychemApp()
     space = App.space
     space.setSize(2000,1000,200)
-    for i in range(0,300):
-        f = random.random()*pi
-        rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-        x = random.randint(0,space.WIDTH)
-        y = random.randint(0,space.HEIGHT)
-        z = random.randint(0,space.DEPTH)
-        space.merge_from_file("examples/simple/NH3.json",x,y,z,rot)
-        f = random.random()*pi
-        rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-        x = random.randint(0,space.WIDTH)
-        y = random.randint(0,space.HEIGHT)
-        z = random.randint(0,space.DEPTH)
-        space.merge_from_file("examples/aldehyde/glycolaldehyde.json",x,y,z,rot)
+    
+    
+    space.merge_from_file_random("examples/simple/NH3.json", 300)
+    space.merge_from_file_random("examples/aldehyde/glycolaldehyde.json",300)
 
     space.update_delta = 10
      #space.recording = True

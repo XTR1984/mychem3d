@@ -19,19 +19,8 @@ if __name__ == '__main__':
     space = App.space
     space.setSize(1500,500,200)
     time.sleep(1)
-    for i in range(0,400):
-            #makealcohol(space,random.randint(100,900),random.randint(100,900),random.randint(100,900),3)
-        #space.merge_from_file("examples/simple/NH3.json",random.randint(-500,500),random.randint(-500,500),random.randint(-500,500))
-        #space.merge_from_file("examples/simple/H2O.json",random.randint(-400,500),random.randint(-500,500),random.randint(-400,400))
-        #space.merge_from_file("examples/alkene/etylen.json",random.randint(-400,500),random.randint(-500,500),random.randint(-400,400))
-        #space.merge_from_file("examples/alkane/decane.json",random.randint(-400,500),random.randint(-500,500),random.randint(-400,400))
-        #space.merge_from_file("examples/aldehyde/glycolaldehyde.json",random.randint(-500,500),random.randint(-500,500),random.randint(-500,500))
-        f = random.random()*pi
-        rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-        x = random.randint(0,space.WIDTH)
-        y = random.randint(0,space.HEIGHT)
-        z = random.randint(0,space.DEPTH)        
-        space.merge_from_file("examples/amide/formamide.json",x,y,z,rot)
+    
+    space.merge_from_file_random("examples/amide/formamide.json",400)
     #space.export = True
     #space.merge_from_file("examples/alkane/30ane.json",glm.vec3(100,100,100))
     space.update_delta = 10

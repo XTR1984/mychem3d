@@ -17,7 +17,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, \
                             QVBoxLayout, QWidget, QShortcut,QHBoxLayout,QStatusBar, \
                             QSlider,QFileDialog, QMessageBox,QLabel,QDialog,QCheckBox, \
                             QMenu,QComboBox,QPushButton,QInputDialog,QLineEdit,QDoubleSpinBox,\
-                            QScrollArea
+                            QScrollArea,QDialogButtonBox,QFormLayout, QSpinBox, QProgressBar
+
 
 from PyQt5.QtCore import Qt
 
@@ -537,38 +538,35 @@ class MainWindow(QMainWindow):
         self.status_bar.set("Merging mode")
         self.update_status()
         
-    def handle_random_recent(self,event=None):
+    def handle_random_recent(self, event=None):
         if not self.recentdata:
             return
+
         self.sim_pause()
         self.undostack.push(self.space.make_export())
-        self.merge_atoms = self.space.copy_atoms(self.recentdata)
         self.unselect()
-        #(center,distant) = self.space.get_atoms_distant(self.space.merge_atoms)
-        number, ok = QInputDialog.getInt(None, "Input number", "How many?")        
-        if not ok :
-            return
-        for i in range(0,number):
-            x= random.randint(0,self.space.WIDTH)
-            y= random.randint(0,self.space.HEIGHT)
-            z= random.randint(0,self.space.DEPTH)
+
+        dlg = RandomMergeDialog(self, count=1, mindistgood=25, tries=100)
+
+        def place_one(mindistgood, tries, do_update):
+            # Fresh copy of the source object for every attempt.
             self.space.merge_atoms = self.space.copy_atoms(self.recentdata)
-            self.space.move_atoms(self.space.merge_atoms, glm.vec3(x,y,z)-self.space.get_mergeobject_center())
-            f = random.random()*3.1415
-            rot = glm.normalize(glm.quat(cos(f/2), sin(f/2)* glm.vec3(random.random(),random.random(),random.random())))
-            c = self.space.get_mergeobject_center()
-            self.space.rotate_atoms(self.space.merge_atoms, c, rot)
-            self.space.merge_rot = rot
-            self.space.merge2atoms()
-        self.space.merge_pos = self.space.box/2
+            ok = self.space.merge_random(mindistgood=mindistgood, tries=tries)
+            if ok and do_update:
+                self.space.atoms2compute()
+            return ok
+
+        dlg.placement_callback = place_one
+        dlg.exec_()   # modal: user configures, presses Start, then Close
+
+        # Reset merge transform state.
+        self.space.merge_pos = self.space.box / 2
         self.space.merge_rot = glm.quat()
-        self.resetdata = self.space.make_export()
         self.space.atoms2compute()
-        self.glframe.calcfirst()            
+        self.resetdata = self.space.make_export()
+        self.glframe.calcfirst()
         self.merge_mode = False
         self.update_status()
-
-
 
     def file_save(self,event=None):
         self.sim_pause()
@@ -1028,7 +1026,130 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 #sys.excepthook = handle_exception
 
 
+class RandomMergeDialog(QDialog):
+    """Single dialog for random placement: asks for parameters, then
+    stays open and shows a live counter of placed copies."""
 
+    def __init__(self, parent=None, count=1, mindistgood=25, tries=100):
+        super().__init__(parent)
+        self.setWindowTitle("Random placement")
+
+        self.placement_callback = None
+        self.cancel_flag = False
+        self._running = False
+
+        form = QFormLayout(self)
+
+        # --- Parameter inputs ---
+        self.spin_count = QSpinBox()
+        self.spin_count.setRange(1, 100000)
+        self.spin_count.setValue(count)
+        self.spin_count.selectAll()          
+        self.spin_count.setFocus()           
+
+        self.spin_mindist = QSpinBox()
+        self.spin_mindist.setRange(1, 1000)
+        self.spin_mindist.setValue(mindistgood)
+
+        self.spin_tries = QSpinBox()
+        self.spin_tries.setRange(1, 100000)
+        self.spin_tries.setValue(tries)
+
+        self.check_update = QCheckBox("Update")
+        self.check_update.setChecked(True)
+
+        form.addRow("How many?", self.spin_count)
+        form.addRow("Min. distance:", self.spin_mindist)
+        form.addRow("Tries per copy:", self.spin_tries)
+        form.addRow("", self.check_update)
+
+        # --- Progress display ---
+        self.progress = QProgressBar()
+        self.progress.setRange(0, 1)
+        self.progress.setValue(0)
+        form.addRow("Placed:", self.progress)
+
+        self.label = QLabel("Ready. Press Start to begin.")
+        form.addRow(self.label)
+
+        # --- Buttons: Start / Close ---
+        self.start_button = QPushButton("Start")
+        self.close_button = QPushButton("Close")
+
+        self.start_button.clicked.connect(self._on_start)
+        self.close_button.clicked.connect(self._on_close)
+
+        buttons = QHBoxLayout()
+        buttons.addWidget(self.start_button)
+        buttons.addWidget(self.close_button)
+        form.addRow(buttons)
+
+    def update_enabled(self):
+        # Whether the scene should be refreshed after placement.
+        return self.check_update.isChecked()
+    
+    def values(self):
+        return (self.spin_count.value(),
+                self.spin_mindist.value(),
+                self.spin_tries.value())
+
+    def _on_start(self):
+        # Start the placement if a callback has been provided.
+        if self.placement_callback is None:
+            return
+        self.run_placement(self.placement_callback)
+
+    def _on_close(self):
+        # While running, "Close" acts as "Stop"; otherwise it just closes.
+        if self._running:
+            self.cancel_flag = True
+        else:
+            self.reject()
+
+    def set_progress(self, placed, total):
+        self.progress.setRange(0, total)
+        self.progress.setValue(placed)
+        self.label.setText("Placed: %d / %d "   % (placed, total))
+        QApplication.processEvents()
+
+    def run_placement(self, callback):
+        """Disable inputs, run the placement callback, keep the dialog open.
+
+        The callback is called once per requested copy and must return True
+        on successful placement. It may check self.cancel_flag to abort.
+        """
+        number, mindistgood, tries = self.values()
+        do_update = self.update_enabled()
+        # Freeze the parameter inputs while running.
+        self.spin_count.setEnabled(False)
+        self.spin_mindist.setEnabled(False)
+        self.spin_tries.setEnabled(False)
+        self.start_button.setEnabled(False)
+        self.close_button.setText("Stop")
+
+        self.progress.setRange(0, number)
+        self.progress.setValue(0)
+        self._running = True
+        self.cancel_flag = False
+
+        placed = 0
+        for i in range(number):
+            if self.cancel_flag:
+                break
+            ok = callback(mindistgood, tries, do_update)
+            if ok:
+                placed += 1
+            self.set_progress(placed, number)
+
+        self._running = False
+        self.start_button.setEnabled(True)
+        self.close_button.setText("Close")
+
+        self.label.setText("Done. Placed %d / %d." % (placed, number))
+        return placed
+
+
+    
 if __name__ == '__main__':
     from PyQt5.QtCore import QT_VERSION_STR, PYQT_VERSION_STR
     from PyQt5.Qt import PYQT_VERSION_STR as PYQT5_VERSION_STR
